@@ -32,7 +32,8 @@
     "./games/words/stories.js": "./games/words/stories.js?v=__V__",
     "./games/words/stories-a.js": "./games/words/stories-a.js?v=__V__",
     "./games/words/theater.js": "./games/words/theater.js?v=__V__",
-    "./games/words/scenes.js": "./games/words/scenes.js?v=__V__"
+    "./games/words/scenes.js": "./games/words/scenes.js?v=__V__",
+    "./games/math/math.js": "./games/math/math.js?v=__V__"
   }
 }
 </script>
@@ -151,6 +152,49 @@
   <div id="scene-cap"></div>
 </div>
 <div id="bubbles-play"></div>
+
+<!-- ===================== משחק: עושים חשבון ונהנים ===================== -->
+<div id="m-menu" class="screen hidden">
+  <div class="panel win menu-win">
+    <h1 class="logo small"><span class="l1">עושים חשבון</span><span class="l2">ונהנים!</span></h1>
+    <p class="tagline">הבעיה מבקשת – ואתם עושים! לוקחים, מעבירים, מוסיפים ומוציאים.<br>מה שיש בסלים בסוף – זאת התשובה.</p>
+    <div class="row grade-row">
+      <label>כיתה</label>
+      <div class="seg">
+        <button data-mgrade="a" type="button">כיתה א' – עד 10</button>
+        <button data-mgrade="c" type="button">כיתה ג' – עד 100</button>
+      </div>
+    </div>
+    <p id="m-hint-c" class="m-hint hidden">בכיתה ג' יש <b>שקים של 10</b> וכדורים בודדים. צריך לפרק עשרת? שמים שק על השולחן <b>"פותחים שק ✂️"</b> והוא נהיה 10 בודדים.</p>
+    <div class="m-modes">
+      <button data-mmode="word" type="button" class="m-mode"><span class="em">🧺</span><b>בעיות מילוליות</b><small>עושים בדיוק מה שהבעיה מבקשת</small><span id="m-best-word" class="best"></span></button>
+      <button data-mmode="ex" type="button" class="m-mode"><span class="em">➕➖</span><b>תרגילי חיבור וחיסור</b><small>מוסיפים לסל או מוציאים ממנו</small><span id="m-best-ex" class="best"></span></button>
+    </div>
+    <button id="m-back" class="link back" type="button">🏠 חזרה לחצר</button>
+  </div>
+</div>
+
+<div id="m-hud" class="hidden">
+  <div id="m-card" class="m-card">
+    <div class="m-top"><span id="m-count" class="m-count">1/8</span><button id="m-home" class="m-home" type="button" title="לתפריט">☰</button></div>
+    <div id="m-ex" class="m-ex hidden"></div>
+    <div id="m-text" class="m-text"></div>
+    <div id="m-eq" class="m-eq hidden"></div>
+  </div>
+  <div class="m-help">לוחצים על סל או ארגז: הדמות הולכת ולוקחת פריט אחד, ולחיצה נוספת על סל – שמה אותו שם.</div>
+  <button id="m-done" class="m-btn" type="button">סיימתי ✓</button>
+  <button id="m-next" class="m-btn hidden" type="button">לבעיה הבאה ▶</button>
+</div>
+
+<div id="m-over" class="screen hidden">
+  <div class="panel win over-win">
+    <h3>סיימתם את כל הבעיות! 🎉</h3>
+    <div id="m-over-stars" class="over-stars"></div>
+    <p id="m-over-sub" class="over-sub"></p>
+    <button id="m-again" class="big" type="button">עוד סבב ▶</button>
+    <button id="m-other" class="link" type="button">לתפריט</button>
+  </div>
+</div>
 
 <div id="pop"><div class="t"></div><div class="s"></div></div>
 <div id="msg"></div>

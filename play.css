@@ -117,3 +117,26 @@ body.nikud #story-lbl { font-family: 'Noto Sans Hebrew', 'Rubik', sans-serif; }
 @keyframes capin { from { opacity: 0; transform: translateY(10px); } }
 #scene-ui.nikud #scene-cap { font-family: 'Noto Sans Hebrew', 'Rubik', sans-serif; font-size: clamp(22px, 3vw, 32px); }
 #bubbles-play { position: fixed; inset: 0; pointer-events: none; z-index: 13; }
+
+/* ===================== עושים חשבון ונהנים ===================== */
+.m-hint { margin: 4px 0 8px; font-size: 15px; color: #7a3b00; background: #fff3c4; padding: 6px 10px; border-radius: 8px; text-align: right; }
+.m-modes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
+.m-mode { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 14px 10px; background: rgba(255,255,255,.6); border: 2.5px solid var(--pen); border-radius: 255px 14px 225px 14px / 14px 225px 14px 255px; color: #1d2a55; }
+.m-mode:hover { background: rgba(255, 226, 64, .45); }
+.m-mode .em { font-size: 34px; }
+.m-mode b { font-size: 20px; }
+.m-mode small { font-size: 14px; color: #555; }
+.m-mode .best { position: absolute; top: -10px; left: 10px; font-size: 14px; }
+#m-hud { position: fixed; inset: 0; z-index: 10; pointer-events: none; }
+.m-card { pointer-events: auto; position: absolute; top: max(10px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); width: min(760px, calc(100% - 24px)); padding: 10px 18px 12px; background: rgba(253, 251, 242, .97); border: 3px solid var(--ink); box-shadow: 4px 4px 0 rgba(0,0,0,.4); text-align: center; }
+.m-top { display: flex; justify-content: space-between; align-items: center; }
+.m-count { font: 800 15px 'Rubik', sans-serif; color: #666; }
+.m-home { width: 34px; height: 34px; font-size: 18px; background: var(--cream); border: 2px solid var(--ink); }
+.m-ex { font: 900 46px/1.1 'Rubik', sans-serif; color: var(--pen); direction: ltr; }
+.m-text { font: 600 22px/1.6 'Rubik', sans-serif; color: #141b33; }
+.m-card.nikud .m-text { font-family: 'Noto Sans Hebrew', 'Rubik', sans-serif; font-size: 26px; }
+.m-eq { margin-top: 6px; display: inline-block; padding: 4px 18px; border-radius: 12px; background: #dff5e7; border: 2px solid #1f8a4c; font: 900 40px 'Rubik', sans-serif; color: #16703c; direction: ltr; animation: capin .4s ease-out; }
+.m-help { position: absolute; bottom: max(84px, calc(env(safe-area-inset-bottom) + 74px)); left: 50%; transform: translateX(-50%); width: max-content; max-width: calc(100% - 24px); padding: 4px 12px; border-radius: 99px; background: rgba(26,15,46,.72); color: #fff; font-weight: 700; font-size: 14px; text-align: center; }
+.m-btn { pointer-events: auto; position: absolute; bottom: max(18px, env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); padding: 12px 34px; font: 900 26px 'Rubik', sans-serif; color: #fff; background: #1f8a4c; border: 3px solid var(--ink); box-shadow: 5px 5px 0 var(--ink); }
+#m-next { background: var(--pink); }
+@media (max-width: 700px) { .m-modes { grid-template-columns: 1fr; } .m-text { font-size: 18px; } .m-ex { font-size: 36px; } }
