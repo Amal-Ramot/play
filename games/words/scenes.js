@@ -1017,5 +1017,239 @@ export const SCENES = {
       T.say(roni, 'חחח! בּוֹאִי נִבְנֶה עוֹד אֶחָד!', 3);
     });
   },
+
+  // הָאוֹפַנַּיִם שֶׁל יוֹנִי
+  async 'a-bike'(T) {
+    const yoni = T.actor('יוֹנִי', { ...KID_SMALL, height: 1.3, x: -5, z: 1, facing: 0 });
+    const dad = T.actor('אַבָּא', { ...MAN, x: 1, z: 3.6, facing: -Math.PI / 2 });
+    const bike = T.add(PROPS.bike('#1e88e5')); T.hold(bike, yoni); bike.userData.holdY = 0;
+    T.cam([-3, 1.8, 4.6], [-4.4, 0.7, 1]);
+    await T.beat(0, async () => { T.anim(yoni, 'cheer'); T.say(yoni, 'אוֹפַנַּיִם חֲדָשִׁים! 🚲', 2.4); });
+    await T.beat(1, async () => {
+      T.cam([0, 4, 9], [0, 0.7, 0]);
+      for (const [x, z] of [[4, 0], [4, -3], [-3, -3], [0, 0.6]]) { await T.walk(yoni, x, z, 4.2); T.say(yoni, 'דִּין דּוֹן! 🔔', 0.9); }
+      T.face(dad, yoni.pos.x, yoni.pos.z); T.anim(dad, 'cheer'); T.say(dad, '👏👏👏', 2);
+    });
+  },
+
+  // גְּלִידָה בַּקַּיִץ
+  async 'a-icecream'(T) {
+    const gal = T.actor('גַּל', { ...KID_SMALL, height: 1.3, shirt: '#ff8a65', x: -2, z: 1.5 });
+    const truck = T.add(PROPS.truck()); truck.position.set(2.6, 0, -2.6); truck.rotation.y = Math.PI / 2;
+    T.cam([-1.4, 2, 5], [0.4, 1, -1]);
+    await T.beat(0, async () => { T.say(gal, 'חַם! ☀️🥵', 2.2); });
+    await T.beat(1, async () => {
+      await T.walk(gal, 0.6, -0.6, 2);
+      const ic = T.add(PROPS.popsicle('#ff7eb6')); T.hold(ic, gal); ic.userData.holdY = 0.85;
+      T.cam([1.4, 1.3, 1.4], [0.6, 0.85, -0.6]);
+      for (let i = 0; i < 5; i++) { const d = T.add(PROPS.smallBall('#ff7eb6')); d.scale.setScalar(0.15); d.position.set(gal.pos.x + 0.2, 0.75, gal.pos.z + 0.2); T.tween(d, { y: 0.03 }, 0.6); await T.wait(0.35); }
+      T.anim(gal, 'cheer'); T.say(gal, 'חחח! נוֹזֵל לִי עַל הַיָּד! 😆', 2.6);
+    });
+  },
+
+  // הָעֲפִיפוֹן שֶׁל נוֹעָה
+  async 'a-kite'(T) {
+    const noa = T.actor('נוֹעָה', { ...NOA, x: -4, z: 2 });
+    const kite = T.add(PROPS.kite()); kite.position.set(-3.6, 1, 2.2);
+    T.cam([0, 3, 9], [0, 3, -2]);
+    await T.beat(0, async () => { T.say(noa, 'יֵשׁ רוּחַ! 🌬️', 2); for (let i = 0; i < 6; i++) { kite.rotation.z = Math.sin(i) * 0.3; await T.wait(0.25); } });
+    await T.beat(1, async () => {
+      const run = T.walk(noa, 3, 1, 2.6);
+      await T.tween(kite, { x: 0, y: 6, z: -3 }, 2.6); await run;
+      T.cam([0, 2, 8], [0, 8, -6]);
+      await T.tween(kite, { x: 2, y: 11, z: -6 }, 2.4);
+      T.anim(noa, 'cheer'); T.say(noa, 'עַד הָעֲנָנִים! ☁️', 2.4);
+    });
+  },
+
+  // חִלָּזוֹן אַחֲרֵי הַגֶּשֶׁם
+  async 'a-snail'(T) {
+    T.rain(true);
+    const yosi = T.actor('יוֹסִי', { ...KID_SMALL, height: 1.3, shirt: '#81c784', x: -2, z: 2 });
+    const snail = T.add(PROPS.snail()); snail.position.set(0, 0.02, 0.8); snail.scale.setScalar(2);
+    T.cam([0.8, 1.1, 2.6], [0, 0.2, 0.6]);
+    await T.beat(0, async () => { await T.wait(1.4); T.rain(false); });
+    await T.beat(1, async () => {
+      T.tween(snail, { z: 0 }, 4);
+      await T.walk(yosi, -0.6, 1.6, 1.2);
+      T.face(yosi, 0, 0.4); T.say(yosi, 'שָׁלוֹם, חִלָּזוֹן! 🐌', 2.6);
+    });
+  },
+
+  // עוּגִיּוֹת שֶׁל סָבְתָא
+  async 'a-cookies'(T) {
+    const savta = T.actor('סָבְתָא', { ...GRANDMA, x: -0.6, z: 0.4, facing: -Math.PI / 2 });
+    const kid = T.actor('יֶלֶד', { ...KID_SMALL, height: 1.3, x: 1.2, z: 1.2, facing: Math.PI });
+    const oven = T.add(PROPS.oven()); oven.position.set(-0.6, 0, -0.6);
+    T.cam([1.4, 1.6, 3.4], [-0.2, 0.8, -0.2]);
+    await T.beat(0, async () => { T.say(savta, 'אֲנִי אוֹפָה עוּגִיּוֹת 🍪', 2.6); });
+    await T.beat(1, async () => {
+      const tray = T.add(PROPS.cookies()); tray.position.set(-0.6, 0.5, -0.2);
+      await T.tween(tray, { y: 1.0, z: 0.3 }, 1);
+      T.hold(tray, savta);
+      T.face(savta, kid.pos.x, kid.pos.z); await T.walk(kid, 0.5, 0.8, 1.2);
+      T.anim(kid, 'cheer'); T.say(kid, 'יַאמִּי! 😋', 2.4);
+    });
+  },
+
+  // הַנַּדְנֵדָה
+  async 'a-swing'(T) {
+    const sw = T.add(PROPS.swing()); sw.position.set(0, 0, -1);
+    const roni = T.actor('רוֹנִי', { ...SISTER, height: 1.2, x: -1.6, z: 1 });
+    const dad = T.actor('אַבָּא', { ...MAN, x: 1.6, z: 1, facing: Math.PI });
+    T.cam([3.2, 1.8, 3], [0, 1.2, -1]);
+    await T.beat(0, async () => { T.say(roni, 'נַדְנֵדָה! 🛝', 2); });
+    await T.beat(1, async () => {
+      await T.walk(roni, 0, -0.6, 1.4);
+      roni.pos.set(0, 0.5, -1); roni.facing = Math.PI / 2;
+      await T.walk(dad, 0, -2.2, 1.6); T.face(dad, 0, 0);
+      const seat = sw.getObjectByName('seat');
+      for (let i = 0; i < 10; i++) {
+        const a = Math.sin(i * 0.9) * 0.6;
+        seat.rotation.x = a; roni.pos.set(0, 0.5 + Math.abs(Math.sin(a)) * 0.5, -1 + Math.sin(a) * 1.9);
+        if (i === 3) T.say(roni, 'יוֹתֵר לְמַעְלָה! 😄', 2);
+        await T.wait(0.3);
+      }
+      seat.rotation.x = 0; roni.pos.set(0, 0.5, -1);
+    });
+  },
+
+  // תּוֹמֶר קוֹשֵׁר שְׂרוֹכִים
+  async 'a-shoes'(T) {
+    const tomer = T.actor('תּוֹמֶר', { ...KID_SMALL, height: 1.3, shirt: '#ffb74d', x: 0, z: 0.6, facing: Math.PI / 2 });
+    const mom = T.actor('אִמָּא', { ...MOM, x: 1.8, z: 0.8, facing: Math.PI });
+    T.cam([0.4, 1.2, 2.8], [0, 0.6, 0.6]);
+    await T.beat(0, async () => { T.say(tomer, 'נַעֲלַיִם 👟', 1.8); });
+    await T.beat(1, async () => {
+      T.anim(tomer, 'sad'); T.say(tomer, 'מִסְבִּיב... וּפְנִימָה...', 2.2); await T.wait(2.4);
+      T.anim(tomer, 'cheer'); T.say(tomer, 'הִצְלַחְתִּי! 🎉', 2.4); await T.wait(1.2);
+      await T.walk(mom, 0.5, 0.7, 1.4); T.face(mom, 0, 0.6); T.anim(mom, 'cheer'); T.say(mom, '🤗', 2);
+    });
+  },
+
+  // הַדָּגִים שֶׁל שִׁירָה
+  async 'a-fish'(T) {
+    const aq = T.add(PROPS.aquarium()); aq.position.set(0, 0, -0.6);
+    const shira = T.actor('שִׁירָה', { ...SISTER, height: 1.25, x: 0, z: 0.5, facing: -Math.PI / 2 });
+    T.cam([0.8, 1.3, 2.4], [0, 1.05, -0.6]);
+    const swim = async (n) => { for (let i = 0; i < n; i++) { aq.userData.fish.forEach((f, j) => { f.position.x = Math.sin(i * 0.5 + j * 2) * 0.4; f.rotation.y = Math.cos(i * 0.5 + j * 2) > 0 ? 0 : Math.PI; }); await T.wait(0.2); } };
+    await T.beat(0, async () => { await swim(10); });
+    await T.beat(1, async () => {
+      T.say(shira, 'בֹּקֶר טוֹב, דָּגִים! 🐠', 2.4); await swim(6);
+      for (let i = 0; i < 6; i++) { const d = T.add(PROPS.seed()); d.position.set(-0.1 + i * 0.04, 1.5, -0.6); T.tween(d, { y: 0.9 }, 1.6); }
+      await swim(10); T.anim(shira, 'cheer');
+    });
+  },
+
+  // פִּיקְנִיק בַּפַּארְק
+  async 'a-picnic'(T) {
+    const fam = [T.actor('אִמָּא', { ...MOM, x: -6, z: 2 }), T.actor('אַבָּא', { ...MAN, x: -7, z: 2.6 }), T.actor('יֶלֶד', { ...KID_SMALL, height: 1.25, x: -5, z: 3 })];
+    for (const [x, z] of [[-3, -3], [4, -4]]) { const t = T.add(PROPS.tree()); t.position.set(x, 0, z); }
+    T.cam([0, 3, 7], [0, 0.6, 0]);
+    await T.beat(0, async () => { for (const [i, k] of fam.entries()) T.walk(k, -0.8 + i * 0.9, 1 - (i % 2) * 0.6, 1.8); await T.wait(3); });
+    await T.beat(1, async () => {
+      const m = T.add(PROPS.mat('#e53935')); m.position.set(0, 0.02, 0); m.scale.set(0.8, 1, 0.8);
+      T.say(fam[0], 'מַפָּה עַל הַדֶּשֶׁא 🧺', 2.2); await T.wait(1.6);
+      for (const [x, z] of [[-0.4, -0.2], [0.3, 0.2], [0.5, -0.3]]) { const s = T.add(PROPS.sandwich()); s.position.set(x, 0.05, z); }
+      const j = T.add(PROPS.juice()); j.position.set(-0.2, 0.03, 0.3);
+      T.cam([1.4, 1.4, 2.6], [0, 0.4, 0]);
+      for (const k of fam) { T.face(k, 0, 0); T.anim(k, 'cheer'); }
+      T.say(fam[2], 'טָעִים! 🥪', 2);
+    });
+  },
+
+  // הַכּוֹבַע הַכָּחֹל
+  async 'a-hat'(T) {
+    const ori = T.actor('אוֹרִי', { ...KID_SMALL, height: 1.3, x: 0, z: 1 });
+    const hat = T.add(PROPS.hat()); T.hold(hat, ori); hat.userData.holdY = 1.3;
+    T.cam([0.4, 1.6, 4], [0, 1, 0.8]);
+    await T.beat(0, async () => { T.say(ori, 'הַכּוֹבַע הַכָּחֹל שֶׁלִּי 🧢', 2.4); });
+    await T.beat(1, async () => {
+      T.hold(hat, null);
+      T.cam([0, 3, 7], [2, 0.8, -1]);
+      T.say(ori, 'הַכּוֹבַע! 😮', 1.6);
+      const fly = T.tween(hat, { x: 4.5, y: 2.2, z: -2 }, 2.2);
+      await T.walk(ori, 4.4, -1.4, 3.4); await fly;
+      T.hold(hat, ori); T.anim(ori, 'cheer'); T.say(ori, 'תָּפַסְתִּי! 🎉', 2.4);
+    });
+  },
+
+  // הַשֵּׁן שֶׁל מִיָּה
+  async 'a-tooth'(T) {
+    const mia = T.actor('מִיָּה', { ...SISTER, height: 1.25, x: 0, z: 0.8, facing: Math.PI / 2 });
+    const pillow = T.add(PROPS.pillow()); pillow.position.set(1.4, 0, 0.4);
+    const tooth = T.add(PROPS.tooth()); T.hold(tooth, mia); tooth.userData.holdY = 0.95;
+    T.cam([0.6, 1.3, 3], [0.6, 0.7, 0.5]);
+    await T.beat(0, async () => { T.say(mia, 'נָפְלָה לִי שֵׁן! 🦷', 2.4); });
+    await T.beat(1, async () => {
+      await T.walk(mia, 1.2, 0.9, 1);
+      T.hold(tooth, null); tooth.position.set(1.4, 0.05, 0.4); tooth.visible = false;
+      T.night(true); T.lampAt(1.4, 1.2, 1.4); await T.wait(2.2);
+      T.night(false);
+      const g = T.add(PROPS.gift()); g.position.set(1.4, 0.16, 0.4);
+      T.cam([1.6, 1, 1.8], [1.4, 0.3, 0.4]);
+      T.anim(mia, 'cheer'); T.say(mia, 'מַתָּנָה! 🎁', 2.4);
+    });
+  },
+
+  // פַּרְפַּר בַּגִּנָּה
+  async 'a-butterfly'(T) {
+    const bf = T.add(PROPS.butterfly()); bf.position.set(-2, 1.6, 0);
+    const fl = T.add(PROPS.stem()); fl.position.set(1, 0, -0.2); fl.scale.set(0.6, 0.7, 0.6);
+    const dana = T.actor('דָּנָה', { ...DANA, x: -1.6, z: 1.6, facing: 0 });
+    T.cam([-0.4, 1.3, 3], [0, 0.9, 0]);
+    const flap = async (n) => { for (let i = 0; i < n; i++) { const a = Math.sin(i * 1.6) * 0.8; bf.getObjectByName('wl').rotation.y = a; bf.getObjectByName('wr').rotation.y = -a; await T.wait(0.08); } };
+    await T.beat(0, async () => { T.tween(bf, { x: 0, y: 1.2, z: -0.4 }, 2); await flap(25); });
+    await T.beat(1, async () => {
+      T.tween(bf, { x: 1, y: 0.78, z: -0.15 }, 1.4); await flap(18);
+      T.say(dana, 'שֶׁקֶט... 🦋', 2.6); await T.wait(0.6);
+      T.cam([1.6, 1.1, 1.2], [1, 0.75, -0.2]);
+      await flap(30);
+    });
+  },
+
+  // הַדֻּבִּי שֶׁל עוֹמֶר
+  async 'a-teddy'(T) {
+    const omer = T.actor('עוֹמֶר', { ...KID_SMALL, height: 1.25, shirt: '#90caf9', x: 0, z: 0.6, facing: Math.PI / 2 });
+    const teddy = T.add(PROPS.teddy()); T.hold(teddy, omer); teddy.userData.holdY = 0.6;
+    const pillow = T.add(PROPS.pillow()); pillow.position.set(1.2, 0, 0.6);
+    T.cam([0.4, 1.2, 2.8], [0.2, 0.7, 0.6]);
+    await T.beat(0, async () => { T.say(omer, 'הַדֻּבִּי שֶׁלִּי רַךְ 🧸', 2.4); });
+    await T.beat(1, async () => {
+      T.night(true); T.lampAt(0.6, 1.4, 1.6);
+      await T.walk(omer, 1.0, 0.7, 1);
+      T.anim(omer, 'sad'); T.say(omer, '😴 זzz...', 2.6);
+    });
+  },
+
+  // קֶשֶׁת בַּשָּׁמַיִם
+  async 'a-rainbow'(T) {
+    T.rain(true);
+    const lior = T.actor('לִיאוֹר', { ...KID_SMALL, height: 1.3, shirt: '#4ecdc4', x: 0, z: 2, facing: -Math.PI / 2 });
+    T.cam([0, 1.4, 5.6], [0, 4, -10]);
+    await T.beat(0, async () => { await T.wait(1.4); T.rain(false); T.say(lior, 'הַשֶּׁמֶשׁ יָצְאָה! ☀️', 2.2); });
+    await T.beat(1, async () => {
+      const rb = T.add(PROPS.rainbow()); rb.position.set(0, -2, -30);
+      for (let i = 1; i <= 7; i++) { T.say(lior, String(i), 0.6); await T.wait(0.55); }
+      T.anim(lior, 'cheer'); T.say(lior, 'שִׁבְעָה! 🌈', 2.4);
+    });
+  },
+
+  // עִפָּרוֹן לְבֶן
+  async 'a-share'(T) {
+    const ella = T.actor('אֵלָה', { ...SISTER, height: 1.25, x: -0.7, z: 0.6, facing: 0 });
+    const ben = T.actor('בֶּן', { ...KID_SMALL, height: 1.25, x: 0.8, z: 0.6, facing: Math.PI });
+    for (const x of [-0.7, 0.8]) { const d = T.add(PROPS.table(0.9, 0.5)); d.scale.set(1, 0.75, 1); d.position.set(x, 0, -0.1); }
+    const p1 = T.add(PROPS.pencil('#e53935')); p1.position.set(-0.8, 0.58, -0.1);
+    const p2 = T.add(PROPS.pencil('#1e88e5')); p2.position.set(-0.6, 0.58, -0.05);
+    T.cam([0, 1.4, 2.8], [0, 0.6, 0]);
+    await T.beat(0, async () => { T.say(ella, 'יֵשׁ לִי שְׁנַיִם ✏️✏️', 2.4); });
+    await T.beat(1, async () => {
+      T.anim(ben, 'sad'); T.say(ben, 'שָׁכַחְתִּי עִפָּרוֹן... 😟', 2.4); await T.wait(2.4);
+      await T.tween(p2, { x: 0.7 }, 0.9);
+      T.say(ella, 'קַח! 😊', 1.8); await T.wait(1.4);
+      T.anim(ben, 'cheer'); T.say(ben, 'תּוֹדָה! 💛', 2.4);
+    });
+  },
 };
 
