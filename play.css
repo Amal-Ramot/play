@@ -141,3 +141,4 @@ body.nikud #story-lbl { font-family: 'Noto Sans Hebrew', 'Rubik', sans-serif; }
 #m-next { background: var(--pink); }
 @media (max-width: 700px) { .m-modes { grid-template-columns: 1fr; } .m-text { font-size: 18px; } .m-ex { font-size: 36px; } }
 .m-eq pre.vert { margin: 0; font: 900 34px/1.15 'Courier New', monospace; text-align: left; color: #16703c; }
+#m-mode-groups { grid-column: 1 / -1; }
