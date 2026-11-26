@@ -38,68 +38,79 @@ const OBJ = {
   ball: { word: 'כַּדּוּרִים', make: () => ball() },
   apple: { word: 'תַּפּוּחִים', make: () => apple() },
 };
-// סוגי בעיות מילוליות. כל סוג מחזיר: טקסט, מכלים (סלים/ארגז) עם כמה פריטים בהתחלה, יעדים, ותרגיל
-const WORD_TYPES = [
-  () => { // מוסיפים לסל
-    const a = rnd(2, 6), b = rnd(2, 10 - a), o = pick(['ball', 'apple']);
-    return { obj: o, text: `בַּסַּל שֶׁל דָּנִי יֵשׁ ${a} ${OBJ[o].word}. שִׂים בַּסַּל שֶׁלּוֹ עוֹד ${b} ${OBJ[o].word} מֵהָאַרְגָּז.`,
-      boxes: { crate: 'supply', dani: a }, target: { dani: a + b }, eq: `${a} + ${b} = ${a + b}`, count: 'dani' };
-  },
-  () => { // נותנים לחבר
-    const a = rnd(4, 10), b = rnd(2, a - 1), o = pick(['ball', 'apple']);
-    return { obj: o, text: `לְדָנִי יֵשׁ ${a} ${OBJ[o].word}. הוּא רוֹצֶה לָתֵת לְנוֹעָה ${b} ${OBJ[o].word}. עֲזֹר לוֹ לְהַעֲבִיר אוֹתָם!`,
-      boxes: { dani: a, noa: 0 }, target: { dani: a - b, noa: b }, eq: `${a} − ${b} = ${a - b}`, count: 'dani' };
-  },
-  () => { // מביאים את מה שחסר
-    const c = rnd(5, 10), a = rnd(1, c - 2);
-    return { obj: 'apple', text: `נוֹעָה צְרִיכָה ${c} תַּפּוּחִים לָעוּגָה. בַּסַּל שֶׁלָּהּ יֵשׁ ${a}. הָבֵא לָהּ מֵהָאַרְגָּז אֶת מָה שֶׁחָסֵר!`,
-      boxes: { crate: 'supply', noa: a }, target: { noa: c }, eq: `${a} + ${c - a} = ${c}`, count: 'noa', missing: c - a };
-  },
-  () => { // מוציאים מהסל
-    const a = rnd(4, 10), b = rnd(1, a - 1), o = pick(['ball', 'apple']);
-    return { obj: o, text: `בַּסַּל שֶׁל נוֹעָה יֵשׁ ${a} ${OBJ[o].word}. הוֹצֵא ${b} ${OBJ[o].word} מֵהַסַּל וְשִׂים אוֹתָם בָּאַרְגָּז.`,
-      boxes: { noa: a, crate: 0 }, target: { noa: a - b }, eq: `${a} − ${b} = ${a - b}`, count: 'noa' };
-  },
-  () => { // אוספים הכול לארגז אחד
-    const a = rnd(1, 5), b = rnd(1, 10 - a - 0 > 5 ? 5 : 10 - a);
-    return { obj: 'ball', text: `לְדָנִי יֵשׁ ${a} כַּדּוּרִים וּלְנוֹעָה יֵשׁ ${b} כַּדּוּרִים. שִׂים אֶת כָּל הַכַּדּוּרִים בָּאַרְגָּז.`,
-      boxes: { dani: a, noa: b, crate: 0 }, target: { dani: 0, noa: 0, crate: a + b }, eq: `${a} + ${b} = ${a + b}`, count: 'crate' };
-  },
+// כל בעיה מחזירה: obj (כדורים/תפוחים), text (הבעיה), boxes (מה יש בכל מכל בהתחלה), target (מה צריך להיות בסוף),
+// eq: [מספר, פעולה, מספר, תוצאה] (לתרגיל שמוצג בסוף), count (איזה סל סופרים בסוף), ex (בתרגילים: מה כתוב למעלה)
+const W1 = (o) => OBJ[o].word;
+
+// ===== כיתה א' – עד 10 (עם ניקוד) =====
+const WORD_A = [
+  () => { const a = rnd(2, 6), b = rnd(2, 10 - a), o = pick(['ball', 'apple']); // מוסיפים
+    return { obj: o, text: `בַּסַּל שֶׁל דָּנִי יֵשׁ ${a} ${W1(o)}. שִׂים בַּסַּל שֶׁלּוֹ עוֹד ${b} ${W1(o)} מֵהָאַרְגָּז.`, boxes: { crate: 'supply', dani: a }, target: { dani: a + b }, eq: [a, '+', b, a + b], count: 'dani' }; },
+  () => { const a = rnd(4, 10), b = rnd(2, a - 1), o = pick(['ball', 'apple']); // נותנים
+    return { obj: o, text: `לְדָנִי יֵשׁ ${a} ${W1(o)}. הוּא רוֹצֶה לָתֵת לְנוֹעָה ${b} ${W1(o)}. עֲזֹר לוֹ לְהַעֲבִיר אוֹתָם!`, boxes: { dani: a, noa: 0 }, target: { dani: a - b, noa: b }, eq: [a, '−', b, a - b], count: 'dani' }; },
+  () => { const c = rnd(5, 10), a = rnd(1, c - 2); // חסר – צריך לחשב כמה להביא
+    return { obj: 'apple', text: `נוֹעָה צְרִיכָה ${c} תַּפּוּחִים לָעוּגָה. בַּסַּל שֶׁלָּהּ יֵשׁ ${a}. הָבֵא לָהּ מֵהָאַרְגָּז אֶת מָה שֶׁחָסֵר!`, boxes: { crate: 'supply', noa: a }, target: { noa: c }, eq: [a, '+', c - a, c], count: 'noa' }; },
+  () => { const a = rnd(4, 10), b = rnd(1, a - 1), o = pick(['ball', 'apple']); // מוציאים
+    return { obj: o, text: `בַּסַּל שֶׁל נוֹעָה יֵשׁ ${a} ${W1(o)}. הוֹצֵא ${b} ${W1(o)} מֵהַסַּל וְשִׂים אוֹתָם בָּאַרְגָּז.`, boxes: { noa: a, crate: 0 }, target: { noa: a - b }, eq: [a, '−', b, a - b], count: 'noa' }; },
+  () => { const a = rnd(1, 5), b = rnd(1, Math.min(5, 10 - a)); // אוספים
+    return { obj: 'ball', text: `לְדָנִי יֵשׁ ${a} כַּדּוּרִים וּלְנוֹעָה יֵשׁ ${b} כַּדּוּרִים. שִׂים אֶת כָּל הַכַּדּוּרִים בָּאַרְגָּז.`, boxes: { dani: a, noa: b, crate: 0 }, target: { dani: 0, noa: 0, crate: a + b }, eq: [a, '+', b, a + b], count: 'crate' }; },
+  () => { const a = rnd(1, 5), c = rnd(a + 2, 10); // השוואה – כמה חסר לדני כדי שיהיה לו כמו לנועה
+    return { obj: 'ball', text: `לְדָנִי יֵשׁ ${a} כַּדּוּרִים וּלְנוֹעָה יֵשׁ ${c}. הָבֵא לְדָנִי כַּדּוּרִים מֵהָאַרְגָּז, כְּדֵי שֶׁיִּהְיֶה לוֹ כְּמוֹ לְנוֹעָה.`, boxes: { crate: 'supply', dani: a, noa: c }, target: { dani: c, noa: c }, eq: [a, '+', c - a, c], count: 'dani' }; },
+  () => { const n = 2 * rnd(2, 5); // חלוקה שווה
+    return { obj: 'apple', text: `בָּאַרְגָּז יֵשׁ ${n} תַּפּוּחִים. חַלֵּק אוֹתָם שָׁוֶה בְּשָׁוֶה בֵּין דָּנִי לְנוֹעָה.`, boxes: { crate: n, dani: 0, noa: 0 }, target: { dani: n / 2, noa: n / 2, crate: 0 }, eq: [n / 2, '+', n / 2, n], count: 'dani' }; },
 ];
-// ---------- כיתה ג': עד 100, עם שקים של עשר ----------
-const two = (a, b) => rnd(a, b);
+const EX_A = [
+  () => { const a = rnd(1, 6), b = rnd(1, 10 - a), o = pick(['ball', 'apple']);
+    return { obj: o, ex: `${a} + ${b} = ?`, text: `בַּסַּל יֵשׁ ${a}. הוֹסֵף לַסַּל עוֹד ${b} מֵהָאַרְגָּז.`, boxes: { crate: 'supply', basket: a }, target: { basket: a + b }, eq: [a, '+', b, a + b], count: 'basket' }; },
+  () => { const a = rnd(3, 10), b = rnd(1, a - 1), o = pick(['ball', 'apple']);
+    return { obj: o, ex: `${a} − ${b} = ?`, text: `בַּסַּל יֵשׁ ${a}. הוֹצֵא מֵהַסַּל ${b} וְשִׂים בָּאַרְגָּז.`, boxes: { basket: a, crate: 0 }, target: { basket: a - b }, eq: [a, '−', b, a - b], count: 'basket' }; },
+  () => { const c = rnd(4, 10), a = rnd(1, c - 1), o = pick(['ball', 'apple']); // נעלם: כמה צריך להוסיף?
+    return { obj: o, ex: `${a} + ? = ${c}`, text: `בַּסַּל יֵשׁ ${a}. הוֹסֵף לַסַּל מֵהָאַרְגָּז עַד שֶׁיִּהְיוּ בּוֹ ${c}.`, boxes: { crate: 'supply', basket: a }, target: { basket: c }, eq: [a, '+', c - a, c], count: 'basket' }; },
+];
+
+// ===== כיתה ג' – עד 100, עם שקים של עשר =====
+// r = האם הבעיה בנויה כך שצריך המרה (חיבור: האחדות עוברות 10) או פריטה (חיסור: אין מספיק אחדות)
+function genAdd(r) {
+  for (;;) { const a = rnd(12, 68), b = rnd(11, 39); if (a + b <= 99 && ((a % 10) + (b % 10) >= 10) === r) return [a, b]; }
+}
+function genSub(r) {
+  for (;;) { const a = rnd(30, 95), b = rnd(11, a - 6); if (((a % 10) < (b % 10)) === r) return [a, b]; }
+}
+const PL = { ball: 'כדורים', apple: 'תפוחים' };
+// בכיתה ג' בארגז הבודדים יש רק 9 – אי אפשר להביא הכול בבודדים, צריך לחשוב בעשרות ואחדות
+const SRC = { crate: 9, packs: 'supply', open: 0, close: 0 };
+const TBL = { open: 0, close: 0 };
 const WORD_C = [
-  () => { const a = two(12, 55), b = two(11, Math.min(39, 99 - a)), o = pick(['ball', 'apple']);
-    return { obj: o, text: `בסל של דני יש ${a} ${PL[o]}. שים בסל שלו עוד ${b} ${PL[o]} מהארגזים.`, boxes: { crate: 'supply', packs: 'supply', open: 0, dani: a }, target: { dani: a + b }, eq: `${a} + ${b} = ${a + b}`, count: 'dani' }; },
-  () => { const a = two(30, 90), b = two(11, a - 6), o = pick(['ball', 'apple']);
-    return { obj: o, text: `לדני יש ${a} ${PL[o]}. הוא רוצה לתת לנועה ${b} ${PL[o]}. עזור לו להעביר אותם!`, boxes: { dani: a, noa: 0, open: 0 }, target: { dani: a - b, noa: b }, eq: `${a} − ${b} = ${a - b}`, count: 'dani' }; },
-  () => { const c = two(40, 95), a = two(11, c - 12);
-    return { obj: 'apple', text: `נועה צריכה ${c} תפוחים לעוגות. בסל שלה יש ${a}. הבא לה מהארגזים את מה שחסר!`, boxes: { crate: 'supply', packs: 'supply', open: 0, noa: a }, target: { noa: c }, eq: `${a} + ${c - a} = ${c}`, count: 'noa' }; },
-  () => { const a = two(30, 95), b = two(11, a - 8), o = pick(['ball', 'apple']);
-    return { obj: o, text: `בסל של נועה יש ${a} ${PL[o]}. הוצא ${b} ${PL[o]} מהסל ושים אותם בארגז.`, boxes: { noa: a, crate: 0, open: 0 }, target: { noa: a - b }, eq: `${a} − ${b} = ${a - b}`, count: 'noa' }; },
-  () => { const a = two(12, 48), b = two(11, Math.min(48, 99 - a));
-    return { obj: 'ball', text: `לדני יש ${a} כדורים ולנועה יש ${b} כדורים. שים את כל הכדורים בארגז.`, boxes: { dani: a, noa: b, crate: 0 }, target: { dani: 0, noa: 0, crate: a + b }, eq: `${a} + ${b} = ${a + b}`, count: 'crate' }; },
+  (r) => { const [a, b] = genAdd(r), o = pick(['ball', 'apple']);
+    return { obj: o, text: `בסל של דני יש ${a} ${PL[o]}. שים בסל שלו עוד ${b} ${PL[o]} מהארגזים.`, boxes: { ...SRC, dani: a }, target: { dani: a + b }, eq: [a, '+', b, a + b], count: 'dani' }; },
+  (r) => { const [a, b] = genSub(r), o = pick(['ball', 'apple']);
+    return { obj: o, text: `לדני יש ${a} ${PL[o]}. הוא רוצה לתת לנועה ${b} ${PL[o]}. עזור לו להעביר אותם!`, boxes: { ...TBL, dani: a, noa: 0 }, target: { dani: a - b, noa: b }, eq: [a, '−', b, a - b], count: 'dani' }; },
+  (r) => { const [a, b] = genAdd(r);
+    return { obj: 'apple', text: `נועה צריכה ${a + b} תפוחים לעוגות. בסל שלה יש ${a}. הבא לה מהארגזים את מה שחסר!`, boxes: { ...SRC, noa: a }, target: { noa: a + b }, eq: [a, '+', b, a + b], count: 'noa' }; },
+  (r) => { const [a, b] = genSub(r), o = pick(['ball', 'apple']);
+    return { obj: o, text: `בסל של נועה יש ${a} ${PL[o]}. הוצא ${b} ${PL[o]} מהסל ושים אותם בארגז.`, boxes: { ...TBL, noa: a, crate: 0 }, target: { noa: a - b }, eq: [a, '−', b, a - b], count: 'noa' }; },
+  (r) => { const [a, b] = genAdd(r);
+    return { obj: 'ball', text: `לדני יש ${a} כדורים ולנועה יש ${b} כדורים. שים את כל הכדורים בארגז.`, boxes: { ...TBL, dani: a, noa: b, crate: 0 }, target: { dani: 0, noa: 0, crate: a + b }, eq: [a, '+', b, a + b], count: 'crate' }; },
+  (r) => { const [a, b] = genAdd(r);
+    return { obj: 'ball', text: `לדני יש ${a} כדורים ולנועה יש ${a + b}. הבא לדני כדורים מהארגזים, כדי שיהיה לו כמו לנועה.`, boxes: { ...SRC, dani: a, noa: a + b }, target: { dani: a + b, noa: a + b }, eq: [a, '+', b, a + b], count: 'dani' }; },
+  (r) => { const half = r ? 10 * pick([1, 2, 3, 4]) + 5 + rnd(0, 4) : 10 * pick([1, 2, 3, 4]) + rnd(1, 4), n = half * 2; // עשרות אי-זוגיות = צריך לפתוח שק
+    return { obj: 'apple', text: `בארגז יש ${n} תפוחים. חלק אותם שווה בשווה בין דני לנועה.`, boxes: { ...TBL, crate: n, dani: 0, noa: 0 }, target: { dani: half, noa: half, crate: 0 }, eq: [half, '+', half, n], count: 'dani' }; },
 ];
 const EX_C = [
-  () => { const a = two(12, 60), b = two(11, Math.min(39, 99 - a)), o = pick(['ball', 'apple']);
-    return { obj: o, ex: `${a} + ${b}`, text: `בסל יש ${a}. הוסף לסל עוד ${b} מהארגזים.`, boxes: { crate: 'supply', packs: 'supply', open: 0, basket: a }, target: { basket: a + b }, eq: `${a} + ${b} = ${a + b}`, count: 'basket' }; },
-  () => { const a = two(25, 95), b = two(11, a - 6), o = pick(['ball', 'apple']);
-    return { obj: o, ex: `${a} − ${b}`, text: `בסל יש ${a}. הוצא מהסל ${b} ושים בארגז.`, boxes: { basket: a, crate: 0, open: 0 }, target: { basket: a - b }, eq: `${a} − ${b} = ${a - b}`, count: 'basket' }; },
-];
-const PL = { ball: 'כדורים', apple: 'תפוחים' };
-
-const EX_TYPES = [
-  () => { const a = rnd(1, 6), b = rnd(1, 10 - a), o = pick(['ball', 'apple']);
-    return { obj: o, ex: `${a} + ${b}`, text: `בַּסַּל יֵשׁ ${a}. הוֹסֵף לַסַּל עוֹד ${b} מֵהָאַרְגָּז.`, boxes: { crate: 'supply', basket: a }, target: { basket: a + b }, eq: `${a} + ${b} = ${a + b}`, count: 'basket' }; },
-  () => { const a = rnd(3, 10), b = rnd(1, a - 1), o = pick(['ball', 'apple']);
-    return { obj: o, ex: `${a} − ${b}`, text: `בַּסַּל יֵשׁ ${a}. הוֹצֵא מֵהַסַּל ${b} וְשִׂים בָּאַרְגָּז.`, boxes: { basket: a, crate: 0 }, target: { basket: a - b }, eq: `${a} − ${b} = ${a - b}`, count: 'basket' }; },
+  (r) => { const [a, b] = genAdd(r), o = pick(['ball', 'apple']);
+    return { obj: o, ex: `${a} + ${b} = ?`, text: `בסל יש ${a}. הוסף לסל עוד ${b} מהארגזים.`, boxes: { ...SRC, basket: a }, target: { basket: a + b }, eq: [a, '+', b, a + b], count: 'basket' }; },
+  (r) => { const [a, b] = genSub(r), o = pick(['ball', 'apple']);
+    return { obj: o, ex: `${a} − ${b} = ?`, text: `בסל יש ${a}. הוצא מהסל ${b} ושים בארגז.`, boxes: { ...TBL, basket: a, crate: 0 }, target: { basket: a - b }, eq: [a, '−', b, a - b], count: 'basket' }; },
+  (r) => { const [a, b] = genAdd(r), o = pick(['ball', 'apple']);
+    return { obj: o, ex: `${a} + ? = ${a + b}`, text: `בסל יש ${a}. הוסף לסל מהארגזים עד שיהיו בו ${a + b}.`, boxes: { ...SRC, basket: a }, target: { basket: a + b }, eq: [a, '+', b, a + b], count: 'basket' }; },
 ];
 function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
 function makeRound(mode) {
-  const L = [];
-  const W = S.grade === 'c' ? WORD_C : WORD_TYPES, E = S.grade === 'c' ? EX_C : EX_TYPES;
-  for (let i = 0; i < ROUND; i++) L.push(mode === 'word' ? W[i % W.length]() : E[i % 2]());
-  return mode === 'word' ? shuffle(L) : L;
+  const W = S.grade === 'c' ? WORD_C : WORD_A, E = S.grade === 'c' ? EX_C : EX_A;
+  const types = mode === 'word' ? W : E;
+  // סוגים מתחלפים, וחצי מהבעיות עם המרה/פריטה
+  const order = shuffle([...types.keys(), ...types.keys()]).slice(0, ROUND);
+  return order.map((t, i) => types[t](i % 2 === 0));
 }
 function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 
@@ -162,7 +173,7 @@ function crateMesh(label) {
 }
 
 // ---------- בניית הבעיה בחצר ----------
-const SPOTS = { dani: [-3.6, 0], noa: [3.6, 0], basket: [-2.4, 0.4], crate: [0, -3], packs: [2.4, -3], open: [-2.6, -3] };
+const SPOTS = { dani: [-3.6, 0.4], noa: [3.6, 0.4], basket: [-2.2, 0.5], crate: [-1.2, -3.1], packs: [1.2, -3.1], open: [-3.9, -3.1], close: [3.9, -3.1] };
 const OWNERS = {
   dani: { name: 'דָּנִי', plain: 'דני', model: 'Casual2_Male', shirt: '#ffd166', pants: '#3a5a86', skin: '#e8bb94', hair: '#3b2414', height: 1.3 },
   noa: { name: 'נוֹעָה', plain: 'נועה', model: 'Casual_Female', shirt: '#f29bb8', pants: '#3c5a86', skin: '#f0c9a8', hair: '#6b3e1f', height: 1.3 },
@@ -186,9 +197,9 @@ function buildProblem(p) {
   scene = { boxes: {}, objs: [], actors: [] };
   for (const [key, start] of Object.entries(p.boxes)) {
     const [x, z] = SPOTS[key];
-    const kind = key === 'crate' || key === 'packs' ? 'crate' : key === 'open' ? 'table' : 'basket';
+    const kind = key === 'crate' || key === 'packs' ? 'crate' : key === 'open' || key === 'close' ? 'table' : 'basket';
     const c3 = S.grade === 'c';
-    const label = key === 'crate' ? (c3 && p.boxes.packs ? 'בודדים' : c3 ? 'ארגז' : 'אַרְגָּז') : key === 'packs' ? 'שקים של 10' : key === 'open' ? 'פותחים שק ✂️' : key === 'basket' ? (c3 ? 'הסל' : 'הַסַּל') : `${c3 ? 'הסל של' : 'הַסַּל שֶׁל'} ${c3 ? OWNERS[key].plain : OWNERS[key].name}`;
+    const label = key === 'crate' ? (c3 && p.boxes.packs ? 'בודדים (9)' : c3 ? 'ארגז' : 'אַרְגָּז') : key === 'packs' ? 'שקים של 10' : key === 'open' ? 'פותחים שק ✂️' : key === 'close' ? 'סוגרים שק 🎀' : key === 'basket' ? (c3 ? 'הסל' : 'הַסַּל') : `${c3 ? 'הסל של' : 'הַסַּל שֶׁל'} ${c3 ? OWNERS[key].plain : OWNERS[key].name}`;
     const g = kind === 'crate' ? crateMesh(label) : kind === 'table' ? tableMesh(label) : basketMesh(label, key === 'dani' ? '#c98a3a' : key === 'noa' ? '#d77fa1' : '#b8894a');
     g.position.set(x, 0, z);
     C.R.scene.add(g); scene.objs.push(g);
@@ -217,21 +228,30 @@ function clearScene() {
 }
 
 // ---------- לקחת ולשים ----------
-function boxAt(e) {
+// לחיצה על פריט מסוים (שק או בודד) – לוקחים בדיוק אותו; לחיצה על הסל עצמו – בודד אם יש
+function hitAt(e) {
   if (!scene) return null;
-  const hits = C.rayFrom(e).intersectObjects([...scene.objs, ...Object.values(scene.boxes).flatMap((b) => b.items)], true);
-  for (const h of hits) { let o = h.object; while (o && !o.userData.box) o = o.parent; if (o) return o.userData.box; const b = Object.values(scene.boxes).find((x) => x.items.includes(h.object) || x.items.some((it) => it === h.object.parent)); if (b) return b; }
+  const items = Object.values(scene.boxes).flatMap((b) => b.items);
+  const hits = C.rayFrom(e).intersectObjects([...items, ...scene.objs], true);
+  for (const h of hits) {
+    let o = h.object;
+    while (o) {
+      if (items.includes(o)) return { box: Object.values(scene.boxes).find((b) => b.items.includes(o)), item: o };
+      if (o.userData.box) return { box: o.userData.box, item: null };
+      o = o.parent;
+    }
+  }
   return null;
 }
 function onTap(e) {
   if (S.phase !== 'play') return true;
-  const box = boxAt(e);
-  if (box) { goTo(box); return true; }
+  const h = hitAt(e);
+  if (h) { goTo(h.box, h.item); return true; }
   return false;
 }
-function goTo(box) {
-  const front = box.pos.clone().add(new THREE.Vector3(0, 0, box.kind === 'crate' ? 0.95 : 0.85));
-  C.walkTo(front, () => act(box));
+function goTo(box, item) {
+  const front = box.pos.clone().add(new THREE.Vector3(0, 0, box.kind === 'crate' ? 0.95 : box.kind === 'table' ? 0.95 : 0.85));
+  C.walkTo(front, () => act(box, item));
 }
 function onAction() {
   if (S.phase !== 'play' || !scene) return;
@@ -239,8 +259,28 @@ function onAction() {
   for (const b of Object.values(scene.boxes)) { const d = Math.hypot(b.pos.x - C.kid.pos.x, b.pos.z + 0.85 - C.kid.pos.z); if (d < bd) { bd = d; best = b; } }
   if (best) act(best); else C.message('צָרִיךְ לַעֲמֹד לְיַד סַל אוֹ אַרְגָּז');
 }
-function act(box) {
+const singlesIn = (box) => box.items.filter((it) => val(it) === 1).length;
+function act(box, want) {
+  const c3 = S.grade === 'c';
   if (held) {
+    // בכיתה ג': בסל נכנסים עד 9 בודדים – עשרה בודדים סוגרים לשק
+    if (c3 && box.kind === 'basket' && val(held.item) === 1 && singlesIn(box) >= 9) {
+      C.SFX.sfxBuzz();
+      C.message('בסל נכנסים רק 9 בודדים! יש לכם 10? סגרו אותם לשק בשולחן "סוגרים שק 🎀"', 4200);
+      return;
+    }
+    // שולחן "סוגרים שק": כשמגיעים ל-10 בודדים – הם נהיים שק אחד
+    if (box.key === 'close' && val(held.item) === 1) {
+      box.items.push(held.item); held = null;
+      if (singlesIn(box) >= 10) {
+        const ten = box.items.filter((it) => val(it) === 1).slice(0, 10);
+        for (const it of ten) { C.R.scene.remove(it); box.items.splice(box.items.indexOf(it), 1); }
+        const pk = pack(S.prob.obj); C.R.scene.add(pk); box.items.push(pk);
+        C.SFX.sfxClang(); C.pop('🎀', '10 בודדים = שק אחד', '#ffd23f');
+      } else C.SFX.sfxBounce(0.3);
+      layout(box);
+      return;
+    }
     // שק על שולחן הפתיחה – הופך לעשרה בודדים
     if (box.key === 'open' && val(held.item) === 10) {
       C.R.scene.remove(held.item); held = null;
@@ -254,9 +294,11 @@ function act(box) {
     if (box.supply) layout(box);
   } else {
     if (!box.items.length) { C.message('הַסַּל רֵיק 🙂'); return; }
-    // לוקחים בודד אם יש (קל יותר לספור), אחרת שק
-    const singles = box.items.filter((it) => val(it) === 1);
-    const item = box.key === 'packs' ? box.items[box.items.length - 1] : (singles[singles.length - 1] || box.items[box.items.length - 1]);
+    // לוקחים את הפריט שלחצו עליו; אם לחצו על הסל – בודד אם יש, אחרת שק (משולחן הסגירה – קודם השק)
+    const singles = box.items.filter((it) => val(it) === 1), packs = box.items.filter((it) => val(it) === 10);
+    const item = want && box.items.includes(want) ? want
+      : box.key === 'packs' || box.key === 'close' ? (packs[packs.length - 1] || singles[singles.length - 1])
+      : (singles[singles.length - 1] || packs[packs.length - 1]);
     box.items.splice(box.items.indexOf(item), 1); layout(box);
     if (box.supply) { const it = box.key === 'packs' ? pack(S.prob.obj) : OBJ[S.prob.obj].make(); C.R.scene.add(it); box.items.push(it); layout(box); } // ארגז שלא נגמר
     held = { item, from: box };
@@ -300,10 +342,14 @@ async function success() {
     it.scale.setScalar(1.15);
     if (S.phase !== 'count') return;
   }
-  $('m-eq').textContent = S.prob.eq;
+  const [x, op, y, r] = S.prob.eq;
+  if (S.grade === 'c') {
+    const w = 3, pad = (n) => String(n).padStart(w, ' ');
+    $('m-eq').innerHTML = `<pre class="vert">  ${pad(x)}\n${op} ${pad(y)}\n${'─'.repeat(w + 2)}\n  ${pad(r)}</pre>`;
+  } else $('m-eq').textContent = `${x} ${op} ${y} = ${r}`;
   $('m-eq').classList.remove('hidden');
   $('m-done').classList.add('hidden'); $('m-next').classList.remove('hidden');
-  C.pop('כָּל הַכָּבוֹד!', S.prob.eq, '#7ee08a');
+  C.pop(S.grade === 'c' ? 'כל הכבוד!' : 'כָּל הַכָּבוֹד!', `${x} ${op} ${y} = ${r}`, '#7ee08a');
   for (const a of scene.actors) a.play('cheer');
   S.phase = 'solved';
 }
@@ -337,7 +383,10 @@ function showProblem() {
   const p = S.prob = S.list[S.i];
   buildProblem(p);
   C.kid.pos.set(0, 0, 0.9); C.kid.facing = -Math.PI / 2; C.kid.vel.set(0, 0, 0);
-  $('m-ex').textContent = p.ex ? `${p.ex} = ?` : '';
+  $('m-ex').textContent = p.ex || '';
+  $('m-help').innerHTML = S.grade === 'c'
+    ? 'לוחצים על שק או על בודד כדי לקחת אותו · בסל נכנסים עד <b>9 בודדים</b> · אין מספיק בודדים? <b>פותחים שק ✂️</b> · יש 10 בודדים? <b>סוגרים שק 🎀</b>'
+    : 'לוחצים על סל או ארגז: הדמות לוקחת פריט אחד, ולחיצה על סל אחר – שמה אותו שם.';
   $('m-ex').classList.toggle('hidden', !p.ex);
   $('m-text').textContent = p.text;
   $('m-card').classList.toggle('nikud', S.grade === 'a');
@@ -380,4 +429,4 @@ function camera(core, vt, aspect) {
   return { pos: look.clone().add(new THREE.Vector3(0, Math.sin(tilt), Math.cos(tilt)).multiplyScalar(dist)), look, speed: 2.5 };
 }
 
-window.__math = { get S() { return S; }, get scene() { return scene; }, act: (k) => act(scene.boxes[k]), check };
+window.__math = { get S() { return S; }, get scene() { return scene; }, act: (k, kind) => { const b = scene.boxes[k]; const it = kind ? b.items.filter((x) => val(x) === (kind === 'pack' ? 10 : 1)).pop() : null; act(b, it); }, check, gen: (fn) => { S.list[S.i] = fn; showProblem(); }, WORD_C, WORD_A }; // לבדיקות

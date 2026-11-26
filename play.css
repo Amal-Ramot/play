@@ -140,3 +140,4 @@ body.nikud #story-lbl { font-family: 'Noto Sans Hebrew', 'Rubik', sans-serif; }
 .m-btn { pointer-events: auto; position: absolute; bottom: max(18px, env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); padding: 12px 34px; font: 900 26px 'Rubik', sans-serif; color: #fff; background: #1f8a4c; border: 3px solid var(--ink); box-shadow: 5px 5px 0 var(--ink); }
 #m-next { background: var(--pink); }
 @media (max-width: 700px) { .m-modes { grid-template-columns: 1fr; } .m-text { font-size: 18px; } .m-ex { font-size: 36px; } }
+.m-eq pre.vert { margin: 0; font: 900 34px/1.15 'Courier New', monospace; text-align: left; color: #16703c; }
