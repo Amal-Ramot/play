@@ -124,9 +124,19 @@ function stationSign(g) {
   x.fillStyle = g.soon ? '#d9d4c7' : '#fff6dc'; x.fillRect(0, 0, 512, 300);
   x.strokeStyle = g.soon ? '#8d8676' : (g.color || '#1f3f9c'); x.lineWidth = 16; x.strokeRect(8, 8, 496, 284);
   x.direction = 'rtl'; x.textAlign = 'center'; x.textBaseline = 'middle';
-  x.font = '110px sans-serif'; x.fillText(g.emoji, 256, 108);
-  x.fillStyle = '#1c2540'; x.font = '800 62px Rubik';
-  x.fillText(g.title, 256, 232);
+  x.font = '100px sans-serif'; x.fillText(g.emoji, 256, 96);
+  // שם המשחק: מקטינים את האותיות עד שנכנס בשלט; שם ארוך מתחלק לשתי שורות
+  x.fillStyle = '#1c2540';
+  const maxW = 460;
+  let f = 62; x.font = `800 ${f}px Rubik`;
+  if (x.measureText(g.title).width <= maxW) x.fillText(g.title, 256, 232);
+  else {
+    const words = g.title.split(' '), mid = Math.ceil(words.length / 2);
+    const lines = [words.slice(0, mid).join(' '), words.slice(mid).join(' ')];
+    f = 54; x.font = `800 ${f}px Rubik`;
+    while (Math.max(...lines.map((l) => x.measureText(l).width)) > maxW && f > 30) { f -= 2; x.font = `800 ${f}px Rubik`; }
+    lines.forEach((l, i) => x.fillText(l, 256, 205 + i * (f * 1.05)));
+  }
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
   return t;
 }
@@ -141,7 +151,7 @@ function buildStations() {
     ring.rotation.x = -Math.PI / 2; ring.position.y = 0.07; grp.add(ring);
     // שלט על עמוד, מאחורי המשטח
     const post = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1.9, 10), new THREE.MeshStandardMaterial({ color: '#555', roughness: 0.6 }));
-    post.position.set(0, 0.95, -1.35); post.castShadow = true; grp.add(post);
+    post.position.set(0, 0.95, -1.42); post.castShadow = true; grp.add(post);
     const sign = new THREE.Mesh(new THREE.PlaneGeometry(1.9, 1.11), new THREE.MeshStandardMaterial({ map: stationSign(g), roughness: 0.8 }));
     sign.position.set(0, 1.85, -1.3); sign.castShadow = true; grp.add(sign);
     const back = new THREE.Mesh(new THREE.BoxGeometry(1.98, 1.19, 0.04), new THREE.MeshStandardMaterial({ color: '#6b4a2b' }));
