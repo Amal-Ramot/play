@@ -150,8 +150,9 @@ function buildStations() {
     const ring = new THREE.Mesh(new THREE.RingGeometry(1.3, 1.45, 48), new THREE.MeshBasicMaterial({ color: '#ffffff', transparent: true, opacity: 0.8, depthWrite: false }));
     ring.rotation.x = -Math.PI / 2; ring.position.y = 0.07; grp.add(ring);
     // שלט על עמוד, מאחורי המשטח
-    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1.9, 10), new THREE.MeshStandardMaterial({ color: '#555', roughness: 0.6 }));
-    post.position.set(0, 0.95, -1.42); post.castShadow = true; grp.add(post);
+    // העמוד נגמר בתחתית השלט – כך הוא לא נראה דרכו
+    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1.3, 10), new THREE.MeshStandardMaterial({ color: '#555', roughness: 0.6 }));
+    post.position.set(0, 0.65, -1.38); post.castShadow = true; grp.add(post);
     const sign = new THREE.Mesh(new THREE.PlaneGeometry(1.9, 1.11), new THREE.MeshStandardMaterial({ map: stationSign(g), roughness: 0.8 }));
     sign.position.set(0, 1.85, -1.3); sign.castShadow = true; grp.add(sign);
     const back = new THREE.Mesh(new THREE.BoxGeometry(1.98, 1.19, 0.04), new THREE.MeshStandardMaterial({ color: '#6b4a2b' }));
