@@ -4,9 +4,10 @@
 // soon: true – תחנה של משחק שעוד לא מוכן ("בקרוב").
 import { WORDS } from './words/words.js';
 import { MATH } from './math/math.js';
+import { ENGLISH } from './english/english.js';
 
 export const GAMES = [
   WORDS,
   MATH,
-  { id: 'soon-2', title: 'משחק חדש', emoji: '🎨', soon: true, station: { x: 7, z: 1.2 }, desc: 'משחק חדש יגיע לכאן בקרוב!' },
+  ENGLISH,
 ];

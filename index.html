@@ -34,7 +34,8 @@
     "./games/words/stories-a.js": "./games/words/stories-a.js?v=__V__",
     "./games/words/theater.js": "./games/words/theater.js?v=__V__",
     "./games/words/scenes.js": "./games/words/scenes.js?v=__V__",
-    "./games/math/math.js": "./games/math/math.js?v=__V__"
+    "./games/math/math.js": "./games/math/math.js?v=__V__",
+    "./games/english/english.js": "./games/english/english.js?v=__V__"
   }
 }
 </script>
@@ -186,6 +187,57 @@
   <div id="m-help" class="m-help">לוחצים על סל או ארגז: הדמות הולכת ולוקחת פריט אחד, ולחיצה נוספת על סל – שמה אותו שם.</div>
   <button id="m-done" class="m-btn" type="button">סיימתי ✓</button>
   <button id="m-next" class="m-btn hidden" type="button">לבעיה הבאה ▶</button>
+</div>
+
+<!-- Learning English -->
+<div id="e-menu" class="screen hidden">
+  <div class="panel win menu-win">
+    <h1 class="logo small en-logo"><span class="l1">Learning</span><span class="l2">English!</span></h1>
+    <p class="tagline">כתוב משהו באנגלית – ואתם עושים את זה בחצר!<br>לוקחים חפצים ומניחים אותם בדיוק איפה שכתוב.</p>
+    <div class="row grade-row">
+      <label>כיתה</label>
+      <div class="seg">
+        <button data-egrade="a" type="button">כיתה א' – מילים</button>
+        <button data-egrade="c" type="button">כיתה ג' – משפטים</button>
+      </div>
+    </div>
+    <p id="e-desc-a" class="m-hint">מופיעה מילה באנגלית – <b>BALL</b>, <b>RED</b> או <b>THREE</b> – ומביאים לארגז את מה שהיא אומרת. לא בטוחים? 💡 מראה תמונה.</p>
+    <p id="e-desc-c" class="m-hint hidden">מופיע משפט שלם באנגלית, כמו <b dir="ltr">Put the red car on the table.</b> – ועושים בדיוק מה שכתוב. בלי תמונות!</p>
+    <div class="m-modes one">
+      <button id="e-start" type="button" class="m-mode"><span class="em">🔤</span><b dir="ltr">Let's play!</b><small>8 משימות באנגלית</small><span id="e-best" class="best"></span></button>
+    </div>
+    <button id="e-back" class="link back" type="button">🏠 חזרה לחצר</button>
+  </div>
+</div>
+
+<div id="e-hud" class="hidden">
+  <div id="e-card" class="m-card e-card">
+    <div class="m-top"><span id="e-count" class="m-count">1/8</span><button id="e-home" class="m-home" type="button" title="לתפריט">☰</button></div>
+    <div id="e-say" class="e-say"></div>
+    <div class="e-row"><div id="e-big" class="e-big" dir="ltr"></div><div id="e-pic" class="e-pic hidden"></div><button id="e-hint" class="e-hint" type="button" title="רמז">💡</button></div>
+    <div id="e-he" class="e-he hidden"></div>
+  </div>
+  <div id="e-help" class="m-help"></div>
+  <button id="e-done" class="m-btn" type="button">סיימתי ✓</button>
+  <button id="e-next" class="m-btn hidden" type="button">למשימה הבאה ▶</button>
+</div>
+
+<div id="e-choose" class="hidden">
+  <div class="e-choose-box">
+    <button id="e-on" type="button">ON</button>
+    <button id="e-under" type="button">UNDER</button>
+    <button id="e-cancel" class="link" type="button">✕</button>
+  </div>
+</div>
+
+<div id="e-over" class="screen hidden">
+  <div class="panel win over-win">
+    <h3 dir="ltr">Well done! 🎉</h3>
+    <div id="e-over-stars" class="over-stars"></div>
+    <p id="e-over-sub" class="over-sub"></p>
+    <button id="e-again" class="big" type="button">עוד סבב ▶</button>
+    <button id="e-other" class="link" type="button">לתפריט</button>
+  </div>
 </div>
 
 <div id="m-over" class="screen hidden">

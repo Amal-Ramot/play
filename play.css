@@ -142,3 +142,23 @@ body.nikud #story-lbl { font-family: 'Noto Sans Hebrew', 'Rubik', sans-serif; }
 @media (max-width: 700px) { .m-modes { grid-template-columns: 1fr; } .m-text { font-size: 18px; } .m-ex { font-size: 36px; } }
 .m-eq pre.vert { margin: 0; font: 900 34px/1.15 'Courier New', monospace; text-align: left; color: #16703c; }
 #m-mode-groups { grid-column: 1 / -1; }
+
+/* ---------- Learning English ---------- */
+.en-logo .l1, .en-logo .l2 { direction: ltr; }
+.m-modes.one { grid-template-columns: 1fr; }
+.e-say { font: 600 19px/1.5 'Rubik', sans-serif; color: #33405f; }
+.e-card.nikud .e-say { font-family: 'Noto Sans Hebrew', 'Rubik', sans-serif; font-size: 22px; }
+.e-row { display: flex; align-items: center; justify-content: center; gap: 14px; }
+.e-big { font: 900 54px/1.15 'Rubik', sans-serif; color: var(--pen); letter-spacing: 2px; }
+.e-card.sentence .e-big { font-size: 32px; letter-spacing: 0; color: #1d2a55; }
+.e-pic { font-size: 48px; line-height: 1; animation: capin .4s ease-out; }
+.e-hint { width: 46px; height: 46px; font-size: 24px; background: #fff3c4; border: 2px solid var(--ink); border-radius: 50%; }
+.e-he { margin-top: 6px; display: inline-block; padding: 4px 16px; border-radius: 12px; background: #dff5e7; border: 2px solid #1f8a4c; font: 800 26px/1.4 'Noto Sans Hebrew', 'Rubik', sans-serif; color: #16703c; animation: capin .4s ease-out; }
+#e-hud { position: fixed; inset: 0; z-index: 10; pointer-events: none; }
+#e-choose { position: fixed; inset: 0; z-index: 30; display: flex; align-items: center; justify-content: center; background: rgba(10, 8, 25, .25); }
+#e-choose.hidden { display: none; }
+.e-choose-box { position: relative; display: flex; gap: 18px; padding: 22px 26px; background: rgba(253, 251, 242, .97); border: 3px solid var(--ink); box-shadow: 5px 5px 0 rgba(0,0,0,.4); }
+.e-choose-box button:not(.link) { min-width: 150px; padding: 14px 20px; font: 900 34px 'Rubik', sans-serif; color: #fff; background: #1e88e5; border: 3px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); direction: ltr; }
+#e-under { background: #8e24aa; }
+#e-cancel { position: absolute; top: -14px; left: -14px; width: 34px; height: 34px; border-radius: 50%; background: var(--cream); border: 2px solid var(--ink); font-size: 16px; }
+@media (max-width: 700px) { .e-big { font-size: 40px; } .e-card.sentence .e-big { font-size: 22px; } .e-choose-box button:not(.link) { min-width: 110px; font-size: 26px; } }
