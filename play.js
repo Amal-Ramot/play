@@ -57,7 +57,8 @@ async function boot() {
   try { await document.fonts.load('500 40px Rubik'); await document.fonts.load('800 40px Rubik'); } catch {}
   try { await Promise.all(['500', '700', '800'].map((w) => document.fonts.load(`${w} 40px "Noto Sans Hebrew"`, 'אָבּ'))); } catch {}
   C.A = await loadAll();
-  C.R = await createRenderer($('game'), C.A, forced || (isTouch() ? 'low' : 'medium'));
+  // בגרסת המחשב (תוכנה מותקנת) – גרפיקה מקסימלית
+  C.R = await createRenderer($('game'), C.A, forced || (window.PLAY_DESKTOP ? 'ultra' : isTouch() ? 'low' : 'medium'));
   C.W = buildWorld(C.R.scene, C.A);
   makeExtras();
   buildStations();

@@ -22,11 +22,21 @@ async function makeRenderer() {
     { antialias: false, forceWebGL: true, powerPreference: 'low-power' },    // כרטיס מסך חלש / מובנה
   ];
   let lastErr;
-  for (const opts of attempts) {
+  // אם בפעם הקודמת WebGPU קרס (Device Lost) – מדלגים ישר ל-WebGL2
+  let skipGPU = false;
+  try { skipGPU = localStorage.getItem('stanga-force-webgl') === '1'; } catch {}
+  for (const opts of skipGPU ? attempts.slice(1) : attempts) {
     let r;
     try {
       r = new THREE.WebGPURenderer(opts);
       await r.init();
+      if (r.backend && r.backend.isWebGPUBackend) {
+        // WebGPU נפל באמצע? זוכרים, ומרעננים עם WebGL2
+        r.onDeviceLost = () => {
+          try { localStorage.setItem('stanga-force-webgl', '1'); } catch {}
+          setTimeout(() => location.reload(), 300);
+        };
+      }
       return r;
     } catch (e) {
       lastErr = e;
@@ -71,7 +81,8 @@ export async function createRenderer(container, A, quality) {
   const sun = new THREE.DirectionalLight('#ffdcae', 3.6);
   sun.position.copy(SUN_OFFSET);
   sun.castShadow = true;
-  sun.shadow.mapSize.set(quality === 'low' ? 1024 : 2048, quality === 'low' ? 1024 : 2048);
+  const SM = quality === 'low' ? 1024 : quality === 'ultra' ? 4096 : 2048;
+  sun.shadow.mapSize.set(SM, SM);
   Object.assign(sun.shadow.camera, { left: -40, right: 40, top: 36, bottom: -36, near: 1, far: 120 });
   sun.shadow.bias = -0.0004;
   sun.shadow.normalBias = 0.03;
@@ -97,7 +108,7 @@ export async function createRenderer(container, A, quality) {
       const depth = scenePass.getTextureNode('depth');
       const normal = scenePass.getTextureNode('normal');
       const aoPass = ao(depth, normal, camera);
-      aoPass.resolutionScale = 0.5;
+      aoPass.resolutionScale = quality === 'ultra' ? 1 : 0.5;
       aoPass.radius.value = 0.6;
       aoPass.thickness.value = 1.2;
       const lit = color.rgb.mul(aoPass.getTextureNode().r);
@@ -128,7 +139,12 @@ export async function createRenderer(container, A, quality) {
   function setShadow(n, radius) { sun.shadow.radius = radius; }
   function setQuality(l) {
     level = l;
-    if (l === 'high') {
+    if (l === 'ultra') {
+      // גרסת המחשב: כל האפקטים, ברזולוציה המלאה של המסך
+      if (!postTried) buildPost();
+      renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+      setShadow(4096, 4);
+    } else if (l === 'high') {
       if (!postTried) buildPost();
       renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
       setShadow(2048, 3);
@@ -153,6 +169,6 @@ export async function createRenderer(container, A, quality) {
   return {
     renderer, scene, camera, sun, backend, SUN_OFFSET, setQuality,
     get level() { return level; },
-    render() { if (post && level === 'high') post.render(); else renderer.render(scene, camera); },
+    render() { if (post && (level === 'high' || level === 'ultra')) post.render(); else renderer.render(scene, camera); },
   };
 }

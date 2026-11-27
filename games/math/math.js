@@ -4,6 +4,21 @@
 // בסוף כל בעיה סופרים יחד את הפריטים ורואים את התרגיל (למשל 3 + 2 = 5).
 import * as THREE from 'three';
 import { Player, KIDS } from '../../js/player.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+// ---------- חפצים מפורטים (רק בגרסת המחשב) ----------
+// נבנו מראש עם sand3d ונשמרו ב-assets/hd. אם משהו לא נטען – נשארים החפצים הפשוטים.
+const HD = {};
+if (window.PLAY_DESKTOP) {
+  const L = new GLTFLoader();
+  for (const n of ['bench', 'basket', 'crate', 'table']) {
+    L.loadAsync(`assets/hd/${n}.glb`).then((g) => {
+      g.scene.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+      HD[n] = g.scene;
+    }).catch(() => {});
+  }
+}
+function hd(n) { return HD[n] ? HD[n].clone(true) : null; }
 
 const store = {
   get(k, d) { try { const v = localStorage.getItem('stanga-math-' + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
@@ -179,9 +194,15 @@ function labelTex(text, bg, fg) {
 // סל עגול פתוח, עם שלט על מקל
 function basketMesh(label, color) {
   const g = new THREE.Group();
-  g.add(mesh(new THREE.CylinderGeometry(0.62, 0.5, 0.32, 28, 1, true), M(color, { side: THREE.DoubleSide }), 0, 0.16, 0));
-  g.add(mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.03, 28), M('#7a5432'), 0, 0.02, 0));
-  const rim = mesh(new THREE.TorusGeometry(0.62, 0.035, 8, 32), M('#6b4a2b'), 0, 0.32, 0); rim.rotation.x = Math.PI / 2; g.add(rim);
+  const h = hd('basket');
+  if (h) {
+    h.traverse((o) => { if (o.isMesh && /body/i.test(o.name)) { o.material = o.material.clone(); o.material.color.set(color); } });
+    g.add(h);
+  } else {
+    g.add(mesh(new THREE.CylinderGeometry(0.62, 0.5, 0.32, 28, 1, true), M(color, { side: THREE.DoubleSide }), 0, 0.16, 0));
+    g.add(mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.03, 28), M('#7a5432'), 0, 0.02, 0));
+    const rim = mesh(new THREE.TorusGeometry(0.62, 0.035, 8, 32), M('#6b4a2b'), 0, 0.32, 0); rim.rotation.x = Math.PI / 2; g.add(rim);
+  }
   const sign = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 0.34), new THREE.MeshStandardMaterial({ map: labelTex(label, '#fff8dc', '#1c2540'), roughness: 0.8 }));
   sign.position.set(0, 0.62, -0.68); g.add(sign);
   g.add(mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.5, 6), M('#666'), 0, 0.25, -0.7));
@@ -189,16 +210,24 @@ function basketMesh(label, color) {
 }
 function tableMesh(label) {
   const g = new THREE.Group();
-  g.add(mesh(new THREE.BoxGeometry(1.4, 0.05, 0.9), M('#9a6b3e'), 0, 0.72, 0));
-  for (const [sx, sz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) g.add(mesh(new THREE.BoxGeometry(0.05, 0.72, 0.05), M('#7a5432'), sx * 0.64, 0.36, sz * 0.4));
+  const h = hd('table');
+  if (h) g.add(h);
+  else {
+    g.add(mesh(new THREE.BoxGeometry(1.4, 0.05, 0.9), M('#9a6b3e'), 0, 0.72, 0));
+    for (const [sx, sz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) g.add(mesh(new THREE.BoxGeometry(0.05, 0.72, 0.05), M('#7a5432'), sx * 0.64, 0.36, sz * 0.4));
+  }
   const sign = new THREE.Mesh(new THREE.PlaneGeometry(1.3, 0.4), new THREE.MeshStandardMaterial({ map: labelTex(label, '#fff3c4', '#7a3b00'), roughness: 0.8 }));
   sign.position.set(0, 0.5, 0.46); g.add(sign);
   return g;
 }
 function crateMesh(label) {
   const g = new THREE.Group();
-  g.add(mesh(new THREE.BoxGeometry(1.5, 0.45, 1.0), M('#b07a43'), 0, 0.225, 0));
-  g.add(mesh(new THREE.BoxGeometry(1.36, 0.02, 0.86), M('#6b4a2b'), 0, 0.452, 0));
+  const h = hd('crate');
+  if (h) g.add(h);
+  else {
+    g.add(mesh(new THREE.BoxGeometry(1.5, 0.45, 1.0), M('#b07a43'), 0, 0.225, 0));
+    g.add(mesh(new THREE.BoxGeometry(1.36, 0.02, 0.86), M('#6b4a2b'), 0, 0.452, 0));
+  }
   const sign = new THREE.Mesh(new THREE.PlaneGeometry(1.3, 0.4), new THREE.MeshStandardMaterial({ map: labelTex(label, '#2f6a3a', '#fff8dc'), roughness: 0.8 }));
   sign.position.set(0, 0.25, 0.505); g.add(sign);
   return g;
@@ -217,6 +246,7 @@ function slotPos(box, i) {
   return new THREE.Vector3((i % 5 - 2) * sx, base + Math.floor(i / 10) * 0.2, (Math.floor(i / 5) % 2 - 0.5) * 0.24 + (box.hasPacks ? 0.2 : 0));
 }
 function benchMesh() {
+  const h = hd('bench'); if (h) return h;
   const g = new THREE.Group();
   g.add(mesh(new THREE.BoxGeometry(7.2, 0.08, 0.6), M('#a0703f'), 0, 0.42, 0));
   for (const x of [-3.3, 0, 3.3]) g.add(mesh(new THREE.BoxGeometry(0.1, 0.42, 0.5), M('#5a4a3a'), x, 0.21, 0));

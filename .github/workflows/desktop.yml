@@ -1,0 +1,48 @@
+name: Build desktop app
+
+# בונה את "מגרש המשחקים" כתוכנה ל-Windows ומפרסם אותה בדף ההורדות (Releases)
+on:
+  push:
+    branches: [main]
+    paths: ['desktop/**', 'js/**', 'games/**', 'assets/**', 'lib/**', 'index.html', 'play.js', 'play.css', 'style.css', '.github/workflows/desktop.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: desktop
+  cancel-in-progress: true
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Copy game files
+        shell: bash
+        run: |
+          mkdir -p desktop/game
+          cp -r index.html style.css play.css play.js favicon.svg favicon.png js lib assets games desktop/game/
+          sed -i "s/__V__/${GITHUB_SHA::8}/g" desktop/game/index.html
+      - name: Build
+        working-directory: desktop
+        run: |
+          npm install --no-audit --no-fund
+          npm run dist
+      - name: Publish
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: desktop
+          name: מגרש המשחקים – גרסת מחשב
+          body: |
+            הורדה ל-Windows:
+            • **migrash-portable.exe** – פותחים ומשחקים, בלי התקנה.
+            • **migrash-…-x64-nsis.exe** – התקנה רגילה, עם קיצור דרך בשולחן העבודה.
+            עודכן אוטומטית מהגרסה האחרונה (${{ github.sha }}).
+          make_latest: true
+          files: |
+            desktop/dist/*.exe
