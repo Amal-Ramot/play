@@ -10,3 +10,5 @@ Three.js (MIT) is vendored in `lib/`.
 
 Kids characters (assets/kids): "Ultimate Animated Character Pack" by Quaternius (quaternius.com), CC0. Converted from FBX to glTF.
 Notice-board wood (assets/ui): Poly Haven textures plywood, wood_peeling_paint_weathered, weathered_brown_planks (CC0). Font: Playpen Sans Hebrew (SIL OFL).
+
+Desktop-only (assets/hd): evening sky "kloppenheim_06_puresky" from Poly Haven (CC0). Models (bench, basket, crate, table, lantern, tree, cabin, fence, bed) were generated with sand3d (Apache-2.0).

@@ -86,6 +86,18 @@ export async function loadAll() {
       A.hdri = t;
     } catch (e) { console.warn('sky', e); }
   })());
+  // גרסת המחשב: שמיים של שעת ערב באיכות 4K
+  if (window.PLAY_DESKTOP) jobs.push((async () => {
+    try {
+      const buf = await (await fetch('assets/hd/sky_evening_4k.hdr')).arrayBuffer();
+      const d = hdrLoader.parse(buf);
+      const t = new THREE.DataTexture(d.data, d.width, d.height);
+      t.type = d.type; t.colorSpace = THREE.LinearSRGBColorSpace; t.flipY = true;
+      t.minFilter = t.magFilter = THREE.LinearFilter; t.generateMipmaps = false; t.needsUpdate = true;
+      t.mapping = THREE.EquirectangularReflectionMapping;
+      A.hdriEvening = t;
+    } catch (e) { console.warn('sky evening', e); }
+  })());
   await Promise.all(jobs);
   return A;
 }

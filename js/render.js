@@ -113,7 +113,7 @@ export async function createRenderer(container, A, quality) {
       aoPass.thickness.value = 1.2;
       const lit = color.rgb.mul(aoPass.getTextureNode().r);
       // זוהר עדין על אזורים מוארים (שמש על טיח לבן, דודי שמש)
-      const glow = bloom(vec4(lit, 1), 0.1, 0.15, 0.92); // רק על הנקודות הבהירות ביותר, בלי ערפול
+      const glow = quality === 'ultra' ? bloom(vec4(lit, 1), 0.55, 0.45, 0.7) : bloom(vec4(lit, 1), 0.1, 0.15, 0.92); // בגרסת המחשב: זוהר חזק יותר סביב הפנסים // רק על הנקודות הבהירות ביותר, בלי ערפול
       // מיפוי טונים (ACES) + sRGB, ואחריו תיקון צבע בסגנון שקיעה
       const toned = renderOutput(vec4(lit.add(glow.rgb), 1));
       let c = toned.rgb;

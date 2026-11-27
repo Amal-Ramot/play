@@ -18,6 +18,7 @@ import { loadAll, onProgress } from './js/assets.js';
 import { buildWorld, animateWorld } from './js/world.js';
 import { Player, KIDS, EXTRA_KIDS } from './js/player.js';
 import { createRenderer } from './js/render.js';
+import { applyEvening, stationLamp } from './js/evening.js';
 import * as SFX from './js/audio.js';
 import { GAMES } from './games/index.js';
 
@@ -60,6 +61,12 @@ async function boot() {
   // בגרסת המחשב (תוכנה מותקנת) – גרפיקה מקסימלית
   C.R = await createRenderer($('game'), C.A, forced || (window.PLAY_DESKTOP ? 'ultra' : isTouch() ? 'low' : 'medium'));
   C.W = buildWorld(C.R.scene, C.A);
+  // גרסת המחשב: סצנת ערב עם פנסים, בית עץ, עצים וערוגות
+  if (window.PLAY_DESKTOP) {
+    await applyEvening(C);
+    // אי אפשר ללכת דרך בית העץ והערוגות
+    C.blockers = [{ x0: -14.6, x1: -10.6, z0: -8.6, z1: -4.6 }, { x0: 9.9, x1: 15.2, z0: -8.6, z1: -6.3 }];
+  }
   makeExtras();
   buildStations();
   setupInput();
@@ -159,6 +166,7 @@ function buildStations() {
     const back = new THREE.Mesh(new THREE.BoxGeometry(1.98, 1.19, 0.04), new THREE.MeshStandardMaterial({ color: '#6b4a2b' }));
     back.position.set(0, 1.85, -1.33); grp.add(back);
     grp.position.set(g.station.x, 0, g.station.z);
+    if (window.PLAY_DESKTOP) stationLamp(grp);
     C.R.scene.add(grp);
     stations.push({ g, grp, ring });
   }
@@ -375,6 +383,14 @@ function loop() {
   const dt = Math.min(0.05, (now - last) / 1000); last = now;
   C.time += dt;
   stepKid(dt);
+  if (C.blockers) for (const b of C.blockers) {
+    const p = C.kid.pos;
+    if (p.x > b.x0 && p.x < b.x1 && p.z > b.z0 && p.z < b.z1) {
+      // דוחפים החוצה לצד הקרוב
+      const d = [p.x - b.x0, b.x1 - p.x, p.z - b.z0, b.z1 - p.z], m = Math.min(...d);
+      if (m === d[0]) p.x = b.x0; else if (m === d[1]) p.x = b.x1; else if (m === d[2]) p.z = b.z0; else p.z = b.z1;
+    }
+  }
   if (C.mode === 'game' && C.game.update) C.game.update(dt, C);
   if (C.mode === 'choose') C.kid.facing = Math.PI / 2;
   C.kid.update(dt, C.time);
