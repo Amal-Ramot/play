@@ -2,9 +2,7 @@ name: Build desktop app
 
 # בונה את "מגרש המשחקים" כתוכנה ל-Windows ומפרסם אותה בדף ההורדות (Releases)
 on:
-  push:
-    branches: [main]
-    paths: ['desktop/**', 'js/**', 'games/**', 'assets/**', 'lib/**', 'index.html', 'play.js', 'play.css', 'style.css', '.github/workflows/desktop.yml']
+  # מושהה: בונים רק בהפעלה ידנית (Actions → Build desktop app → Run workflow)
   workflow_dispatch:
 
 permissions:
