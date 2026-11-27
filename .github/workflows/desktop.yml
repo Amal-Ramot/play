@@ -41,7 +41,7 @@ jobs:
           body: |
             הורדה ל-Windows:
             • **migrash-portable.exe** – פותחים ומשחקים, בלי התקנה.
-            • **migrash-…-x64-nsis.exe** – התקנה רגילה, עם קיצור דרך בשולחן העבודה.
+            • **migrash-setup.exe** – התקנה רגילה, עם קיצור דרך בשולחן העבודה.
             עודכן אוטומטית מהגרסה האחרונה (${{ github.sha }}).
           make_latest: true
           files: |
