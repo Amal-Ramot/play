@@ -5,9 +5,11 @@
 import { WORDS } from './words/words.js';
 import { MATH } from './math/math.js';
 import { ENGLISH } from './english/english.js';
+import { HOMEWORK } from './homework/homework.js';
 
 export const GAMES = [
   WORDS,
   MATH,
   ENGLISH,
+  HOMEWORK,
 ];

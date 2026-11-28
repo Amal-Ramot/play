@@ -162,3 +162,27 @@ body.nikud #story-lbl { font-family: 'Noto Sans Hebrew', 'Rubik', sans-serif; }
 #e-under { background: #8e24aa; }
 #e-cancel { position: absolute; top: -14px; left: -14px; width: 34px; height: 34px; border-radius: 50%; background: var(--cream); border: 2px solid var(--ink); font-size: 16px; }
 @media (max-width: 700px) { .e-big { font-size: 40px; } .e-card.sentence .e-big { font-size: 22px; } .e-choose-box button:not(.link) { min-width: 110px; font-size: 26px; } }
+
+/* ---------- עושים שיעורים בכיף ---------- */
+.hw-sets { display: grid; gap: 10px; margin: 8px 0; }
+.hw-set { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 12px 10px; background: rgba(255,255,255,.6); border: 2.5px solid var(--pen); border-radius: 255px 14px 225px 14px / 14px 225px 14px 255px; color: #1d2a55; }
+.hw-set:hover { background: rgba(255, 226, 64, .45); }
+.hw-set b { font-size: 21px; }
+.hw-set small { font-size: 14px; color: #555; }
+.hw-date { position: absolute; top: -10px; right: 12px; background: #e65100; color: #fff; font: 800 13px Rubik, sans-serif; padding: 2px 8px; border-radius: 8px; }
+.hw-prog { position: absolute; top: -10px; left: 12px; background: #fff; border: 2px solid var(--ink); font: 800 12px Rubik, sans-serif; padding: 1px 6px; border-radius: 8px; }
+.hw-acts-title { margin: 0 0 6px; }
+#hw-hud { position: fixed; inset: 0; z-index: 10; pointer-events: none; }
+.hw-q { font-size: 19px; }
+.hw-tools { pointer-events: auto; position: absolute; bottom: max(122px, calc(env(safe-area-inset-bottom) + 112px)); left: 50%; transform: translateX(-50%); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: center; width: max-content; max-width: calc(100% - 16px); padding: 8px 10px; background: rgba(253, 251, 242, .95); border: 3px solid var(--ink); box-shadow: 4px 4px 0 rgba(0,0,0,.35); }
+.hw-tools.hidden { display: none; }
+.hw-tools button { min-width: 64px; padding: 8px 12px; font: 900 22px Rubik, sans-serif; color: #fff; background: #ec407a; border: 2.5px solid var(--ink); box-shadow: 3px 3px 0 var(--ink); direction: ltr; }
+.hw-tools button[data-hwtool] { background: #9e9e9e; font-size: 18px; direction: rtl; }
+.hw-tools button[data-hwtool].on { background: #1e88e5; }
+.hw-tools .hw-undo { min-width: 44px; background: var(--cream); color: var(--ink); }
+.hw-sum, .hw-need { font: 800 17px Rubik, sans-serif; color: #1d2a55; }
+.hw-need span { margin: 0 6px; padding: 2px 6px; border-radius: 6px; background: #ffe0e0; }
+.hw-need span.ok { background: #c8f0d4; }
+.m-eq .hw-small { font-size: 24px; opacity: .85; }
+.m-eq .hw-path { font-size: 18px; color: #ad1457; }
+@media (max-width: 700px) { .hw-tools button { min-width: 50px; font-size: 18px; padding: 6px 8px; } .hw-q { font-size: 16px; } }

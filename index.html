@@ -35,7 +35,9 @@
     "./games/words/theater.js": "./games/words/theater.js?v=__V__",
     "./games/words/scenes.js": "./games/words/scenes.js?v=__V__",
     "./games/math/math.js": "./games/math/math.js?v=__V__",
-    "./games/english/english.js": "./games/english/english.js?v=__V__"
+    "./games/english/english.js": "./games/english/english.js?v=__V__",
+    "./games/homework/homework.js": "./games/homework/homework.js?v=__V__",
+    "./games/homework/sets.js": "./games/homework/sets.js?v=__V__"
   }
 }
 </script>
@@ -187,6 +189,58 @@
   <div id="m-help" class="m-help">לוחצים על סל או ארגז: הדמות הולכת ולוקחת פריט אחד, ולחיצה נוספת על סל – שמה אותו שם.</div>
   <button id="m-done" class="m-btn" type="button">סיימתי ✓</button>
   <button id="m-next" class="m-btn hidden" type="button">לבעיה הבאה ▶</button>
+</div>
+
+<!-- עושים שיעורים בכיף -->
+<div id="hw-menu" class="screen hidden">
+  <div class="panel win menu-win">
+    <h1 class="logo small"><span class="l1">עושים שיעורים</span><span class="l2">בכיף!</span></h1>
+    <p class="tagline">שיעורי הבית מהמחברת – הופכים למשחק בחצר.<br>בחרו דף:</p>
+    <div id="hw-sets" class="hw-sets"></div>
+    <button id="hw-back" class="link back" type="button">🏠 חזרה לחצר</button>
+  </div>
+</div>
+
+<div id="hw-acts" class="screen hidden">
+  <div class="panel win menu-win">
+    <h3 id="hw-acts-title" class="hw-acts-title"></h3>
+    <div id="hw-acts-list" class="m-modes"></div>
+    <button id="hw-acts-back" class="link back" type="button">◀ לכל הדפים</button>
+  </div>
+</div>
+
+<div id="hw-hud" class="hidden">
+  <div class="m-card hw-card">
+    <div class="m-top"><span id="hw-count" class="m-count">1/1</span><button id="hw-home" class="m-home" type="button" title="לרשימה">☰</button></div>
+    <div id="hw-big" class="m-ex hidden"></div>
+    <div id="hw-q" class="m-text hw-q"></div>
+    <div id="hw-eq" class="m-eq hidden"></div>
+  </div>
+  <div id="hw-tools-jump" class="hw-tools hidden">
+    <span id="hw-sum" class="hw-sum">קפצנו: 0</span>
+    <button type="button" data-hwjump="1">+1</button><button type="button" data-hwjump="5">+5</button><button type="button" data-hwjump="10">+10</button><button type="button" data-hwjump="100">+100</button>
+    <button id="hw-undo" type="button" class="hw-undo">↩</button>
+  </div>
+  <div id="hw-tools-borrow" class="hw-tools hidden">
+    <button type="button" data-hwtool="remove" class="on">🗑️ מורידים</button>
+    <button type="button" data-hwtool="break">✂️ פורטים</button>
+    <span id="hw-need" class="hw-need"></span>
+    <button id="hw-reset" type="button" class="hw-undo" title="מתחילים מחדש">↺</button>
+  </div>
+  <div id="hw-help" class="m-help"></div>
+  <button id="hw-done" class="m-btn" type="button">סיימתי ✓</button>
+  <button id="hw-next" class="m-btn hidden" type="button">הבא ▶</button>
+</div>
+
+<div id="hw-over" class="screen hidden">
+  <div class="panel win over-win">
+    <h3 id="hw-over-title"></h3>
+    <div id="hw-over-stars" class="over-stars"></div>
+    <p id="hw-over-sub" class="over-sub"></p>
+    <button id="hw-nextact" class="big" type="button">לפעילות הבאה ▶</button>
+    <button id="hw-again" class="link" type="button">עוד פעם</button>
+    <button id="hw-list" class="link" type="button">לרשימת הפעילויות</button>
+  </div>
 </div>
 
 <!-- Learning English -->
