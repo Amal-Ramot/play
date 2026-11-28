@@ -6,6 +6,7 @@
 // בסוף כל משימה רואים את התרגום לעברית.
 import * as THREE from 'three';
 import { Player, KIDS } from '../../js/player.js';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 
 const store = {
   get(k, d) { try { const v = localStorage.getItem('stanga-eng-' + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
@@ -204,12 +205,18 @@ function boxMesh() {
   g.add(mesh(new THREE.BoxGeometry(0.05, 0.5, 0.9), w, 0.625, 0.25, 0));
   return g;
 }
-// תיק פתוח עם ידיות
+// תיק גב של בית ספר – פתוח למעלה, והחפצים מציצים מתוכו
 function bagMesh() {
-  const g = new THREE.Group(), c = M('#7e57c2'), d = M('#5e35b1');
-  g.add(mesh(new THREE.BoxGeometry(1.0, 0.04, 0.6), d, 0, 0.02, 0));
-  for (const [w, dd, x, z] of [[1.0, 0.04, 0, -0.28], [1.0, 0.04, 0, 0.28], [0.04, 0.6, -0.48, 0], [0.04, 0.6, 0.48, 0]]) g.add(mesh(new THREE.BoxGeometry(w, 0.42, dd), c, x, 0.21, z));
-  for (const z of [-0.28, 0.28]) { const h = mesh(new THREE.TorusGeometry(0.18, 0.025, 8, 16, Math.PI), d, 0, 0.42, z); g.add(h); }
+  const g = new THREE.Group(), c = M('#7e57c2', { roughness: 0.85 }), d = M('#5e35b1', { roughness: 0.85 }), dark = M('#2a1747');
+  g.add(mesh(new RoundedBoxGeometry(0.82, 0.62, 0.42, 4, 0.13), c, 0, 0.31, 0));            // גוף התיק
+  const hole = mesh(new THREE.CircleGeometry(0.3, 24), dark, 0, 0.625, 0); hole.rotation.x = -Math.PI / 2; hole.scale.set(1.15, 0.55, 1); g.add(hole); // הפתח למעלה
+  const lip = mesh(new THREE.TorusGeometry(0.3, 0.025, 8, 28), M('#ffd23f', { metalness: 0.3, roughness: 0.4 }), 0, 0.625, 0); lip.rotation.x = Math.PI / 2; lip.scale.set(1.15, 0.55, 1); g.add(lip); // רוכסן פתוח
+  g.add(mesh(new RoundedBoxGeometry(0.56, 0.3, 0.12, 3, 0.06), d, 0, 0.2, 0.24));            // כיס קדמי
+  g.add(mesh(new THREE.BoxGeometry(0.4, 0.02, 0.02), M('#ffd23f', { metalness: 0.3 }), 0, 0.33, 0.305)); // רוכסן של הכיס
+  for (const sd of [-1, 1]) g.add(mesh(new RoundedBoxGeometry(0.1, 0.22, 0.26, 2, 0.04), d, sd * 0.44, 0.14, 0)); // כיסי צד
+  const h = mesh(new THREE.TorusGeometry(0.12, 0.022, 8, 16, Math.PI), d, 0, 0.64, -0.17); g.add(h); // ידית
+  for (const sd of [-1, 1]) g.add(mesh(new THREE.BoxGeometry(0.07, 0.5, 0.03), M('#4527a0'), sd * 0.2, 0.36, -0.225)); // רצועות כתף
+  g.scale.setScalar(1.3);
   return g;
 }
 // פח אשפה ירוק פתוח
@@ -268,7 +275,7 @@ function layout(box) {
     else if (box.key === 'box') { x = ((i % 3) - 1) * 0.36; z = (Math.floor(i / 3) % 2 - 0.5) * 0.36; y = 0.04 + Math.floor(i / 6) * 0.2; }
     else if (box.key === 'on') { x = ((i % 4) - 1.5) * 0.36; z = (Math.floor(i / 4) - 0.3) * 0.32; y = 0.95; }
     else if (box.key === 'under') { x = ((i % 4) - 1.5) * 0.36; z = 0.05; y = 0.0; }
-    else { const a = (i / Math.max(n, 1)) * Math.PI * 2, r = n <= 1 ? 0 : 0.28; x = Math.cos(a) * r; z = Math.sin(a) * r; y = { bag: 0.05, bin: 0.04, tent: 0.02, bed: 0.47 }[box.key] ?? 0.05; }
+    else { const a = (i / Math.max(n, 1)) * Math.PI * 2, r = n <= 1 ? 0 : 0.28; x = Math.cos(a) * r; z = Math.sin(a) * r; y = { bag: 0.66, bin: 0.04, tent: 0.02, bed: 0.47 }[box.key] ?? 0.05; if (box.key === 'bag') { x *= 0.75; z *= 0.35; } }
     it.position.set(box.pos.x + x, y, box.pos.z + z);
     it.rotation.set(0, box.key === 'toys' ? -0.3 : 0.2 * i, 0);
   });
