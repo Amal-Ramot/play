@@ -15,7 +15,8 @@ const $ = (id) => document.getElementById(id);
 const ROUND = 8;
 
 let C = null;
-const S = { phase: 'menu', grade: store.get('grade', 'a'), list: [], i: 0, mistakes: 0, prob: null, hint: false };
+// כרגע רק כיתה ג' (כיתה א' מוסתרת – הקוד שלה נשאר, אפשר להחזיר בקלות)
+const S = { phase: 'menu', grade: 'c', list: [], i: 0, mistakes: 0, prob: null, hint: false };
 let scene = null;
 let held = null;
 let built = false;
@@ -24,7 +25,7 @@ let pendingTable = null; // מחכים לבחירה ON / UNDER
 export const ENGLISH = {
   id: 'english', title: 'Learning English', emoji: '🔤', color: '#1e88e5',
   station: { x: 7, z: 1.2 },
-  desc: 'לומדים אנגלית בעשייה – מילים (כיתה א׳) ומשפטים (כיתה ג׳)',
+  desc: 'לומדים אנגלית בעשייה – משפטים קצרים (כיתה ג׳)',
   enter(core) {
     C = core;
     if (!built) { setupUI(); built = true; }
@@ -86,52 +87,64 @@ const TASKS_A = [
       want: { box: [{ noun: n, n: k }] }, hint: String(k), he: `${NUM_EN[k].toUpperCase()} = ${k}`, places: ['box'] }; },
 ];
 
+// ===== כיתה ג' – רק מילים שבנויות מהאותיות שנלמדו =====
+// כרגע: a b d e g i n t. כל מילה במשפטים נבדקת אוטומטית מול האותיות (ראו LETTERS).
+// כשלומדים אותיות חדשות – מוסיפים אותן ל-LETTERS ומילים חדשות ל-NOUNS_C / PLACES_C.
+export const LETTERS = 'abdegint';
+const okWord = (w) => [...w.toLowerCase()].every((ch) => !/[a-z]/.test(ch) || LETTERS.includes(ch));
+const okSentence = (t) => t.split(/[^A-Za-z]+/).filter(Boolean).every(okWord);
+// חפצים שמזיזים (he = עברית, and = "ו..." לפני המילה, g = מין)
+const NOUNS_C = {
+  egg: { he: 'בֵּיצָה', and: 'וּבֵיצָה', g: 'f' },
+  bat: { he: 'מַחְבֵּט', and: 'וּמַחְבֵּט', g: 'm' },
+  ant: { he: 'נְמָלָה', and: 'וּנְמָלָה', g: 'f' },
+  bee: { he: 'דְּבוֹרָה', and: 'וּדְבוֹרָה', g: 'f' },
+  bean: { he: 'פּוֹל', and: 'וּפוֹל', g: 'm' },
+  bead: { he: 'חָרוּז', and: 'וְחָרוּז', g: 'm' },
+  net: { he: 'רֶשֶׁת', and: 'וְרֶשֶׁת', g: 'f' },
+};
+// מקומות (in a bag / in a bin / in a tent / in a bed)
+const PLACES_C = { bag: 'בַּתִּיק', bin: 'בַּפַּח', tent: 'בָּאֹהֶל', bed: 'בַּמִּטָּה' };
+const ITEMS_C = Object.keys(NOUNS_C).filter(okWord);
+const WHERE_C = Object.keys(PLACES_C).filter(okWord);
+const art = (w) => (/^[aeiou]/.test(w) ? 'an ' : 'a ') + w;
+const cap = (t) => t[0].toUpperCase() + t.slice(1);
+const KIDS_C = { dani: { en: 'Dani', he: 'לְדָנִי' }, tina: { en: 'Tina', he: 'לְטִינָה' } };
+const toysC = (must, k) => shuffle([...must, ...shuffle(ITEMS_C.filter((x) => !must.some((m) => m.noun === x))).slice(0, k).map((n) => ({ noun: n }))]);
+const bigHe = (n) => (NOUNS_C[n].g === 'f' ? 'גְּדוֹלָה' : 'גָּדוֹל');
+const CPLACES = ['bag', 'bin', 'tent', 'bed'];
 const TASKS_C = [
-  () => { const n = pick(ALL); // in the box
-    return { big: `Put the ${n} in the box.`, toys: shuffle([T(n, NOUNS[n].colors ? pick(Object.keys(COLORS)) : null), ...others(n, 5).map((o) => T(o, NOUNS[o].colors ? pick(Object.keys(COLORS)) : null))]),
-      want: { box: [{ noun: n, n: 1 }] }, he: `שִׂימוּ אֶת ${heWithThe(he(n))} בָּאַרְגָּז.`, places: ['box', 'table', 'basket'] }; },
-  () => { const n = pick(COLORABLE), c = pick(Object.keys(COLORS)), g = NOUNS[n].g; // the red car on the table
-    const toys = shuffle([...shuffle(Object.keys(COLORS)).slice(0, 3).concat(c).filter((v, i, a) => a.indexOf(v) === i).map((k) => T(n, k)), ...others(n, 2).map((o) => T(o, NOUNS[o].colors ? pick(Object.keys(COLORS)) : null))]);
-    return { big: `Put the ${c} ${n} on the table.`, toys, want: { on: [{ noun: n, color: c, n: 1 }] }, he: `שִׂימוּ אֶת ${heWithThe(he(n))} ${heWithThe(heColor(c, g))} עַל הַשֻּׁלְחָן.`, places: ['box', 'table', 'basket'] }; },
-  () => { const n = pick(ALL); // under the table
-    return { big: `Put the ${n} under the table.`, toys: shuffle([T(n, NOUNS[n].colors ? pick(Object.keys(COLORS)) : null), ...others(n, 4).map((o) => T(o, NOUNS[o].colors ? pick(Object.keys(COLORS)) : null))]),
-      want: { under: [{ noun: n, n: 1 }] }, he: `שִׂימוּ אֶת ${heWithThe(he(n))} מִתַּחַת לַשֻּׁלְחָן.`, places: ['box', 'table', 'basket'] }; },
-  () => { const k = rnd(2, 4); // two blue balls in the basket
-    if (Math.random() < 0.5) {
-      const n = pick(['apple', 'banana', 'star', 'flower', 'fish']);
-      const toys = shuffle([...Array.from({ length: k + 2 }, () => T(n, null)), ...others(n, 2).map((o) => T(o, NOUNS[o].colors ? pick(Object.keys(COLORS)) : null))]);
-      return { big: `Put ${NUM_EN[k]} ${plural(n)} in the basket.`, toys, want: { basket: [{ noun: n, n: k }] }, he: `שִׂימוּ ${NUM_HE[NOUNS[n].g][k]} ${NOUNS[n].hp} בַּסַּל.`, places: ['box', 'table', 'basket'] };
-    }
-    const n = pick(COLORABLE), c = pick(Object.keys(COLORS)), g = NOUNS[n].g;
-    const toys = shuffle([...Array.from({ length: k + 1 }, () => T(n, c)), ...Object.keys(COLORS).filter((x) => x !== c).slice(0, 3).map((x) => T(n, x))]);
-    return { big: `Put ${NUM_EN[k]} ${c} ${plural(n)} in the basket.`, toys, want: { basket: [{ noun: n, color: c, n: k }] }, he: `שִׂימוּ ${NUM_HE[g][k]} ${NOUNS[n].hp} ${heColor(c, g, true)} בַּסַּל.`, places: ['box', 'table', 'basket'] };
-  },
-  () => { // give to Noa / give Dani two ...
-    if (Math.random() < 0.5) {
-      const n = pick(ALL), who = pick(['dani', 'noa']);
-      return { big: `Give the ${n} to ${who === 'dani' ? 'Dani' : 'Noa'}.`, toys: shuffle([T(n, NOUNS[n].colors ? pick(Object.keys(COLORS)) : null), ...others(n, 4).map((o) => T(o, NOUNS[o].colors ? pick(Object.keys(COLORS)) : null))]),
-        want: { [who]: [{ noun: n, n: 1 }] }, he: `תְּנוּ אֶת ${heWithThe(he(n))} ${who === 'dani' ? 'לְדָנִי' : 'לְנוֹעָה'}.`, places: ['dani', 'noa'] };
-    }
-    const k = rnd(2, 3), n = pick(['apple', 'banana', 'star', 'flower']), who = pick(['dani', 'noa']);
-    const toys = shuffle([...Array.from({ length: k + 2 }, () => T(n, null)), ...others(n, 2).map((o) => T(o, NOUNS[o].colors ? pick(Object.keys(COLORS)) : null))]);
-    return { big: `Give ${who === 'dani' ? 'Dani' : 'Noa'} ${NUM_EN[k]} ${plural(n)}.`, toys, want: { [who]: [{ noun: n, n: k }] }, he: `תְּנוּ ${who === 'dani' ? 'לְדָנִי' : 'לְנוֹעָה'} ${NUM_HE[NOUNS[n].g][k]} ${NOUNS[n].hp}.`, places: ['dani', 'noa'] };
-  },
-  () => { // take out of the box and put on the table – שני שלבים
-    const set = shuffle(ALL.slice()).slice(0, 3), n = set[0];
-    const items = set.map((o) => T(o, NOUNS[o].colors ? pick(Object.keys(COLORS)) : null));
-    return { big: `Take the ${n} out of the box and put it on the table.`, toys: others(n, 3).filter((o) => !set.includes(o)).map((o) => T(o, NOUNS[o].colors ? pick(Object.keys(COLORS)) : null)), start: { box: items },
-      want: { on: [{ noun: n, n: 1 }], box: set.slice(1).map((o) => ({ noun: o, n: 1 })) }, he: `הוֹצִיאוּ אֶת ${heWithThe(he(n))} מֵהָאַרְגָּז וְשִׂימוּ ${NOUNS[n].g === 'f' ? 'אוֹתָהּ' : 'אוֹתוֹ'} עַל הַשֻּׁלְחָן.`, places: ['box', 'table', 'basket'] };
-  },
+  () => { const n = pick(ITEMS_C), w = pick(WHERE_C); // An egg in a bag.
+    return { big: `${cap(art(n))} in ${art(w)}.`, toys: toysC([{ noun: n }], 4), want: { [w]: [{ noun: n, n: 1 }] }, he: `שִׂימוּ ${NOUNS_C[n].he} ${PLACES_C[w]}.`, places: CPLACES }; },
+  () => { const [n, m] = shuffle(ITEMS_C.slice()).slice(0, 2), w = pick(WHERE_C); // An ant and a bee in a tent.
+    return { big: `${cap(art(n))} and ${art(m)} in ${art(w)}.`, toys: toysC([{ noun: n }, { noun: m }], 3), want: { [w]: [{ noun: n, n: 1 }, { noun: m, n: 1 }] }, he: `שִׂימוּ ${NOUNS_C[n].he} ${NOUNS_C[m].and} ${PLACES_C[w]}.`, places: CPLACES }; },
+  () => { const n = pick(ITEMS_C), who = pick(Object.keys(KIDS_C)); // Get Tina a bat.
+    return { big: `Get ${KIDS_C[who].en} ${art(n)}.`, toys: toysC([{ noun: n }], 4), want: { [who]: [{ noun: n, n: 1 }] }, he: `הָבִיאוּ ${KIDS_C[who].he} ${NOUNS_C[n].he}.`, places: ['dani', 'tina'] }; },
+  () => { const n = pick(ITEMS_C), w = pick(WHERE_C); // A big egg in a bed.
+    return { big: `A big ${n} in ${art(w)}.`, toys: toysC([{ noun: n, big: true }, { noun: n }], 3), want: { [w]: [{ noun: n, big: true, n: 1 }] }, he: `שִׂימוּ ${NOUNS_C[n].he} ${bigHe(n)} ${PLACES_C[w]}.`, places: CPLACES }; },
+  () => { const n = pick(ITEMS_C), who = pick(Object.keys(KIDS_C)); // Get Dani a big bee.
+    return { big: `Get ${KIDS_C[who].en} a big ${n}.`, toys: toysC([{ noun: n, big: true }, { noun: n }], 3), want: { [who]: [{ noun: n, big: true, n: 1 }] }, he: `הָבִיאוּ ${KIDS_C[who].he} ${NOUNS_C[n].he} ${bigHe(n)}.`, places: ['dani', 'tina'] }; },
+  () => { const [n, m] = shuffle(ITEMS_C.slice()).slice(0, 2), [w, v] = shuffle(WHERE_C.slice()).slice(0, 2); // An egg in a bag and a bat in a bin. (שני שלבים)
+    return { big: `${cap(art(n))} in ${art(w)} and ${art(m)} in ${art(v)}.`, toys: toysC([{ noun: n }, { noun: m }], 3), want: { [w]: [{ noun: n, n: 1 }], [v]: [{ noun: m, n: 1 }] }, he: `שִׂימוּ ${NOUNS_C[n].he} ${PLACES_C[w]} ${NOUNS_C[m].and} ${PLACES_C[v]}.`, places: CPLACES }; },
 ];
 function makeRound() {
   const types = S.grade === 'c' ? TASKS_C : TASKS_A;
-  return shuffle([...types.keys(), ...types.keys(), ...types.keys()]).slice(0, ROUND).map((t) => types[t]());
+  const out = shuffle([...types.keys(), ...types.keys(), ...types.keys()]).slice(0, ROUND).map((t) => types[t]());
+  if (S.grade === 'c') for (const t of out) if (!okSentence(t.big)) console.warn('letters!', t.big);
+  return out;
 }
 
 // ---------- החפצים ----------
 const M = (c, o = {}) => new THREE.MeshStandardMaterial({ color: c, roughness: 0.6, ...o });
 function mesh(g, m, x = 0, y = 0, z = 0) { const o = new THREE.Mesh(g, m); o.position.set(x, y, z); o.castShadow = true; o.receiveShadow = true; return o; }
 const MAKE = {
+  egg: () => { const e = mesh(new THREE.SphereGeometry(0.085, 18, 14), M('#f7f1e3', { roughness: 0.4 }), 0, 0.11, 0); e.scale.set(1, 1.3, 1); return e; },
+  bat: () => { const g = new THREE.Group(); const b = mesh(new THREE.CylinderGeometry(0.045, 0.018, 0.5, 12), M('#c8955a', { roughness: 0.5 }), 0, 0.05, 0); b.rotation.z = Math.PI / 2; g.add(b); const k = mesh(new THREE.SphereGeometry(0.025, 8, 6), M('#c8955a'), 0.26, 0.05, 0); g.add(k); return g; },
+  ant: () => { const g = new THREE.Group(), k = M('#2b1b12', { roughness: 0.4 }); [[-0.09, 0.05], [0, 0.045], [0.08, 0.04]].forEach(([x, r]) => g.add(mesh(new THREE.SphereGeometry(r, 12, 10), k, x, 0.06, 0))); for (const x of [-0.04, 0, 0.04]) for (const sd of [-1, 1]) { const l = mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.12, 4), k, x, 0.04, sd * 0.05); l.rotation.x = sd * 1.0; g.add(l); } for (const sd of [-1, 1]) { const a = mesh(new THREE.CylinderGeometry(0.005, 0.005, 0.09, 4), k, 0.12, 0.1, sd * 0.02); a.rotation.z = -0.7; g.add(a); } return g; },
+  bee: () => { const g = new THREE.Group(); const b = mesh(new THREE.SphereGeometry(0.08, 16, 12), M('#fbc02d', { roughness: 0.4 }), 0, 0.12, 0); b.scale.set(1.4, 1, 1); g.add(b); for (const x of [-0.04, 0.03]) { const r = mesh(new THREE.TorusGeometry(0.077, 0.014, 6, 18), M('#222'), x, 0.12, 0); r.rotation.y = Math.PI / 2; g.add(r); } for (const sd of [-1, 1]) { const w = mesh(new THREE.SphereGeometry(0.06, 10, 8), new THREE.MeshStandardMaterial({ color: '#e3f2fd', transparent: true, opacity: 0.75 }), 0, 0.2, sd * 0.05); w.scale.set(0.7, 0.25, 1); g.add(w); } g.add(mesh(new THREE.SphereGeometry(0.045, 10, 8), M('#222'), 0.12, 0.12, 0)); return g; },
+  bean: () => { const g = new THREE.Group(); const b = mesh(new THREE.SphereGeometry(0.06, 14, 10), M('#8d4a2b', { roughness: 0.35 }), 0, 0.05, 0); b.scale.set(1.5, 0.75, 0.9); g.add(b); return g; },
+  bead: () => { const g = new THREE.Group(); const t = mesh(new THREE.TorusGeometry(0.05, 0.032, 10, 18), M(pick(['#e53935', '#8e24aa', '#1e88e5', '#00acc1']), { roughness: 0.2, metalness: 0.2 }), 0, 0.035, 0); t.rotation.x = Math.PI / 2; g.add(t); return g; },
+  net: () => { const g = new THREE.Group(); const h = mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.42, 6), M('#8d6e63'), -0.2, 0.03, 0); h.rotation.z = Math.PI / 2; g.add(h); const r = mesh(new THREE.TorusGeometry(0.11, 0.01, 6, 20), M('#555'), 0.1, 0.03, 0); r.rotation.x = Math.PI / 2; g.add(r); const c = mesh(new THREE.ConeGeometry(0.11, 0.18, 14, 1, true), new THREE.MeshStandardMaterial({ color: '#ffffff', transparent: true, opacity: 0.55, side: THREE.DoubleSide, wireframe: true }), 0.1, 0.03, 0); c.rotation.x = Math.PI / 2; g.add(c); return g; },
   ball: (c) => mesh(new THREE.SphereGeometry(0.13, 20, 14), M(c, { roughness: 0.35 }), 0, 0.13, 0),
   apple: () => { const g = new THREE.Group(); g.add(mesh(new THREE.SphereGeometry(0.12, 18, 12), M('#d32f2f', { roughness: 0.35 }), 0, 0.12, 0)); g.add(mesh(new THREE.CylinderGeometry(0.01, 0.01, 0.07, 5), M('#5a3a1b'), 0, 0.26, 0)); const lf = mesh(new THREE.SphereGeometry(0.035, 8, 6), M('#43a047'), 0.04, 0.27, 0); lf.scale.set(1.4, 0.4, 0.8); g.add(lf); return g; },
   banana: () => { const g = new THREE.Group(); const t = mesh(new THREE.TorusGeometry(0.15, 0.045, 10, 20, Math.PI * 0.75), M('#fdd835', { roughness: 0.5 }), 0, 0.2, 0); t.rotation.z = Math.PI * 1.125; g.add(t); return g; },
@@ -148,16 +161,17 @@ const MAKE = {
 function makeToy(t) {
   const o = MAKE[t.noun](t.color ? COLORS[t.color].hex : undefined);
   const g = o.isGroup ? o : new THREE.Group().add(o);
-  g.scale.setScalar(1.3); // קצת יותר גדול – שיראו טוב מלמעלה
+  g.scale.setScalar(NOUNS_C[t.noun] ? (t.big ? 2.7 : 1.6) : 1.3); // קצת יותר גדול – שיראו טוב מלמעלה; big = הרבה יותר גדול
   g.userData.toy = t;
   return g;
 }
-const describe = (t) => (t.color ? t.color + ' ' : '') + t.noun;
+const describe = (t) => (t.big ? 'big ' : '') + (t.color ? t.color + ' ' : '') + t.noun;
 
 // ---------- המקומות בחצר ----------
 // toys = השטיח שעליו כל החפצים; box = ארגז; table = שולחן (on = עליו, under = מתחתיו); basket = סל; dani/noa = הסלים של הילדים
-const SPOT = { toys: [0, -2.5], box: [-2.6, -0.1], table: [2.6, -0.25], basket: [0, 0.35], dani: [-3.2, 0.4], noa: [3.2, 0.4] };
+const SPOT = { toys: [0, -2.5], box: [-2.6, -0.1], table: [2.6, -0.25], basket: [0, 0.35], dani: [-3.2, 0.4], noa: [3.2, 0.4], tina: [3.2, 0.4], bag: [-3.5, 0.0], bin: [-1.2, 0.1], tent: [1.2, -0.1], bed: [3.5, 0.0] };
 const OWNERS = {
+  tina: { name: 'Tina', model: 'Casual2_Female', shirt: '#9be3c4', pants: '#3c5a86', skin: '#e2b08a', hair: '#2a1a10', height: 1.3 },
   dani: { name: 'Dani', model: 'Casual2_Male', shirt: '#ffd166', pants: '#3a5a86', skin: '#e8bb94', hair: '#3b2414', height: 1.3 },
   noa: { name: 'Noa', model: 'Casual_Female', shirt: '#f29bb8', pants: '#3c5a86', skin: '#f0c9a8', hair: '#6b3e1f', height: 1.3 },
 };
@@ -190,6 +204,43 @@ function boxMesh() {
   g.add(mesh(new THREE.BoxGeometry(0.05, 0.5, 0.9), w, 0.625, 0.25, 0));
   return g;
 }
+// תיק פתוח עם ידיות
+function bagMesh() {
+  const g = new THREE.Group(), c = M('#7e57c2'), d = M('#5e35b1');
+  g.add(mesh(new THREE.BoxGeometry(1.0, 0.04, 0.6), d, 0, 0.02, 0));
+  for (const [w, dd, x, z] of [[1.0, 0.04, 0, -0.28], [1.0, 0.04, 0, 0.28], [0.04, 0.6, -0.48, 0], [0.04, 0.6, 0.48, 0]]) g.add(mesh(new THREE.BoxGeometry(w, 0.42, dd), c, x, 0.21, z));
+  for (const z of [-0.28, 0.28]) { const h = mesh(new THREE.TorusGeometry(0.18, 0.025, 8, 16, Math.PI), d, 0, 0.42, z); g.add(h); }
+  return g;
+}
+// פח אשפה ירוק פתוח
+function binMesh() {
+  const g = new THREE.Group();
+  g.add(mesh(new THREE.CylinderGeometry(0.42, 0.36, 0.55, 24, 1, true), M('#2e7d32', { side: THREE.DoubleSide, roughness: 0.5 }), 0, 0.275, 0));
+  g.add(mesh(new THREE.CylinderGeometry(0.36, 0.36, 0.03, 24), M('#1b5e20'), 0, 0.02, 0));
+  const r = mesh(new THREE.TorusGeometry(0.42, 0.03, 8, 28), M('#1b5e20'), 0, 0.55, 0); r.rotation.x = Math.PI / 2; g.add(r);
+  return g;
+}
+// אוהל (גג שקוף למחצה – כדי לראות מה בפנים)
+function tentMesh() {
+  const g = new THREE.Group();
+  const roof = new THREE.MeshStandardMaterial({ color: '#ff8a3d', transparent: true, opacity: 0.55, side: THREE.DoubleSide, roughness: 0.8, depthWrite: false });
+  const tri = new THREE.Shape([new THREE.Vector2(-0.62, 0), new THREE.Vector2(0.62, 0), new THREE.Vector2(0, 0.85)]);
+  const body = new THREE.Mesh(new THREE.ExtrudeGeometry(tri, { depth: 1.25, bevelEnabled: false }), roof);
+  body.position.z = -0.625; g.add(body);
+  const fl = new THREE.Mesh(new THREE.PlaneGeometry(1.3, 1.25), M('#6d4c41')); fl.rotation.x = -Math.PI / 2; fl.position.y = 0.012; fl.receiveShadow = true; g.add(fl);
+  for (const z of [-0.65, 0.65]) g.add(mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.82, 6), M('#5d4037'), 0, 0.41, z));
+  return g;
+}
+// מיטה עם כרית ושמיכה
+function bedMesh() {
+  const g = new THREE.Group();
+  g.add(mesh(new THREE.BoxGeometry(1.0, 0.3, 1.4), M('#8d6e63'), 0, 0.15, 0));
+  g.add(mesh(new THREE.BoxGeometry(0.95, 0.12, 1.35), M('#fafafa'), 0, 0.36, 0));
+  g.add(mesh(new THREE.BoxGeometry(0.97, 0.05, 0.7), M('#42a5f5'), 0, 0.44, 0.32));
+  g.add(mesh(new THREE.BoxGeometry(0.6, 0.1, 0.26), M('#fff8e1'), 0, 0.46, -0.5));
+  g.add(mesh(new THREE.BoxGeometry(1.0, 0.45, 0.06), M('#6d4c41'), 0, 0.42, -0.7));
+  return g;
+}
 function tableMesh() {
   const g = new THREE.Group();
   g.add(mesh(new THREE.BoxGeometry(1.6, 0.06, 0.9), M('#9a6b3e'), 0, 0.92, 0));
@@ -217,7 +268,7 @@ function layout(box) {
     else if (box.key === 'box') { x = ((i % 3) - 1) * 0.36; z = (Math.floor(i / 3) % 2 - 0.5) * 0.36; y = 0.04 + Math.floor(i / 6) * 0.2; }
     else if (box.key === 'on') { x = ((i % 4) - 1.5) * 0.36; z = (Math.floor(i / 4) - 0.3) * 0.32; y = 0.95; }
     else if (box.key === 'under') { x = ((i % 4) - 1.5) * 0.36; z = 0.05; y = 0.0; }
-    else { const a = (i / Math.max(n, 1)) * Math.PI * 2, r = n <= 1 ? 0 : 0.28; x = Math.cos(a) * r; z = Math.sin(a) * r; y = 0.05; }
+    else { const a = (i / Math.max(n, 1)) * Math.PI * 2, r = n <= 1 ? 0 : 0.28; x = Math.cos(a) * r; z = Math.sin(a) * r; y = { bag: 0.05, bin: 0.04, tent: 0.02, bed: 0.47 }[box.key] ?? 0.05; }
     it.position.set(box.pos.x + x, y, box.pos.z + z);
     it.rotation.set(0, box.key === 'toys' ? -0.3 : 0.2 * i, 0);
   });
@@ -241,10 +292,12 @@ function buildProblem(p) {
     un.group = tb.group;
   }
   if (p.places.includes('basket')) add('basket', ...SPOT.basket, basketMesh('#b8894a'));
-  for (const who of ['dani', 'noa']) {
+  const PM = { bag: bagMesh, bin: binMesh, tent: tentMesh, bed: bedMesh };
+  for (const k of Object.keys(PM)) if (p.places.includes(k)) add(k, ...SPOT[k], PM[k]());
+  for (const who of ['dani', 'noa', 'tina']) {
     if (!p.places.includes(who)) continue;
     const [x, z] = SPOT[who];
-    add(who, x, z, basketMesh(who === 'dani' ? '#c98a3a' : '#d77fa1', OWNERS[who].name));
+    add(who, x, z, basketMesh(who === 'dani' ? '#c98a3a' : who === 'tina' ? '#4db6ac' : '#d77fa1', OWNERS[who].name));
     const o = OWNERS[who];
     const a = new Player(C.R.scene, { ...KIDS.p1, ...o, model: C.A.kids && C.A.kids[o.model] });
     a.arrow.visible = false; a.ring.visible = false;
@@ -323,9 +376,9 @@ function chooseTable(where) {
 }
 
 // ---------- בדיקה ----------
-const matches = (it, spec) => it.userData.toy.noun === spec.noun && (!spec.color || it.userData.toy.color === spec.color);
+const matches = (it, spec) => it.userData.toy.noun === spec.noun && (!spec.color || it.userData.toy.color === spec.color) && !!spec.big === !!it.userData.toy.big;
 const PLACE_HE = { box: 'בָּאַרְגָּז', on: 'עַל הַשֻּׁלְחָן', under: 'מִתַּחַת לַשֻּׁלְחָן', basket: 'בַּסַּל', dani: 'אֵצֶל דָּנִי', noa: 'אֵצֶל נוֹעָה' };
-const PLACE_C = { box: 'בארגז', on: 'על השולחן', under: 'מתחת לשולחן', basket: 'בסל', dani: 'אצל דני', noa: 'אצל נועה' };
+const PLACE_C = { box: 'בארגז', on: 'על השולחן', under: 'מתחת לשולחן', basket: 'בסל', dani: 'אצל דני', noa: 'אצל נועה', tina: 'אצל טינה', bag: 'בתיק', bin: 'בפח', tent: 'באוהל', bed: 'במיטה' };
 function findError(p) {
   const B = scene.boxes;
   // מה שצריך להיות בכל מקום
@@ -431,7 +484,7 @@ function showProblem() {
   $('e-he').classList.add('hidden');
   $('e-help').textContent = a
     ? 'לוֹחֲצִים עַל חֵפֶץ בַּשָּׁטִיחַ – הַדְּמוּת לוֹקַחַת אוֹתוֹ · לוֹחֲצִים עַל הָאַרְגָּז – שָׂמָה אוֹתוֹ שָׁם · לֹא בְּטוּחִים? 💡'
-    : 'לוחצים על חפץ – הדמות לוקחת אותו · לוחצים על מקום – שמה אותו שם · ליד השולחן בוחרים ON או UNDER';
+    : 'לוחצים על חפץ – הדמות לוקחת אותו · לוחצים על מקום (bag, bin, tent, bed) – שמה אותו שם';
   $('e-done').classList.remove('hidden'); $('e-next').classList.add('hidden');
   $('e-count').textContent = `${S.i + 1}/${S.list.length}`;
   S.phase = 'play';
